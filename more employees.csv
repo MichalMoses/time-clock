@@ -1,4 +1,0 @@
-Employee ID,Employee name,Employee Phone number,Employee DOB,Rank,Subs,Manager
-9876,michal,888-8888888,2022-11-21,Senior,,
-8765,asdf,999-9999999,2022-11-21,Manager,['1234'],
-7654,someone,888-8888888,2022-11-21,Junior,,
