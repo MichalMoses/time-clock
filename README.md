@@ -22,11 +22,11 @@ Options divided to two group: <br>
 2.1. Actions in employee file - <br>
   2.1.1. Add employee manually - manually input all the employees detail to create a new employee in file<br>
   ![image](https://user-images.githubusercontent.com/119158314/218957836-5deddf25-3bec-44a0-8720-b3eb4d64fa0c.png)<br>
-  2.1.2. Add employee from file - add a new employee or a group of employees by getting their data from a csv file with the specific format<br>
+  2.1.2. Add employee from file - add a new employee or a group of employees by getting their data from a csv file of the same format as the emloyees file<br>
   ![image](https://user-images.githubusercontent.com/119158314/218958148-9165b85d-fea5-4c7a-bb78-9a7b50e7ba76.png)<br>
-  2.1.3. Delete employee manually- delete an employee from file by the employee id.<br>
+  2.1.3. Delete employee manually - delete an employee from file by the employee id.<br>
   ![image](https://user-images.githubusercontent.com/119158314/218958332-882f6c59-b52c-496d-981e-80ce77113ae1.png)<br>
-  2.1.4. Delete a single or multiple employees by getting their data from a csv file <br>
+  2.1.4. Delete a single or multiple employees by getting their data from a csv file of the same format as the emloyees file <br>
   ![image](https://user-images.githubusercontent.com/119158314/218959065-ecfaeebe-67fd-4b30-a1a2-0483eb067bb0.png)<br>
 2.2. Generate attendance reports - <br>
   2.2.1. Attendance report for a single employee - will generate a csv file under dir "/reports" containing all the employee's registered entries
