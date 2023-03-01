@@ -67,6 +67,7 @@ def add_manually(): #propt user input for a single employee details and sends it
     #todo - every time we add an employee sort the file by id
     global var_num_add
     var_num_add=IntVar()
+    var_num_add.set(0)
     var_rank=StringVar()
     ranks=['Junior', 'Senior', 'Manager']
 
@@ -237,7 +238,8 @@ def del_manually():
     for widget in sub_action_frame.winfo_children():
         widget.grid_forget()
     global var_num_del
-    var_num_del=IntVar()
+    var_num_del = IntVar()
+    var_num_del.set(0)
 
     #define widgets
     title_label=Label(sub_action_frame,text=f'--Delete Employee from file--')
@@ -326,7 +328,8 @@ def emp_att_report():
     for widget in sub_action_frame.winfo_children():
         widget.grid_forget()
     global var_num_report
-    var_num_report=IntVar()
+    var_num_report = IntVar()
+    var_num_report.set(0)
 
     #define widgets
     action_label=Label(sub_action_frame, text=f'--Get employee attendance report--')
@@ -441,7 +444,8 @@ def custom_att_report():
     var_start_date.set('Choose start date')
     var_end_date=StringVar()
     var_end_date.set('Choose end date')
-
+    var_num_report_custom = IntVar()
+    var_num_report_custom.set(0)
 
 
     #define widgets
@@ -504,7 +508,6 @@ def custom_att_report():
             messagebox.showwarning('Date input error', f'Invalid date input, please try again. \nError: {err} ')
             continue
         break
- #todo change date input to calendar drop down
     #go over attandance file and collect all the lines with the required values
     try:
         with open('Attendance.csv') as csvfile:
@@ -574,7 +577,8 @@ def mark_att_all(): #helping function to fill up the log file for testing
             mark_att(line[0],line[1],line[4])
 #button functions
 def submit_button(option):
-    global var_num_login, var_num_add, var_num_del, var_num_report,var_num_report_custom
+    global var_num_login, var_num_add, var_num_del, var_num_report, var_num_report_custom
+    #several buttons call this function, we check which button called it and update the variable accordingly
     if option=='login':
         var_num_login.set(not var_num_login.get())
     elif option=='add':
@@ -780,7 +784,7 @@ def main_menu():
                 finally:  # update the log according to 'response'
                     if response==0:# if they don't want to check in again
                         label_action_result.config(text=f'--{name} your current entry was not registered--')
-                    else:
+                    else: #check the employee in
                         if mark_att(emp_id, name, rank) == True:
                             label_action_result.config(text=f'--{name}, your log in is registered-- \n --Date: {datetime.now().date().__str__()}, Time: {datetime.now().time().__str__()[:5]}--')
             else:
@@ -789,7 +793,7 @@ def main_menu():
 root = Tk()
 root.title('Employee Management System')
 root.geometry('700x800')
-var_num=IntVar()
+var_num = IntVar()
 
 global file_path
 # mark_att_all()
