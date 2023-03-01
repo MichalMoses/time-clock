@@ -1,7 +1,7 @@
            # Byte-compiled / optimized / DLL files
 Reports/
 
-.csv
+*.csv
 
 __pycache__/
 *.py[cod]
