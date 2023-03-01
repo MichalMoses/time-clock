@@ -38,7 +38,7 @@ Delete a single or multiple employees by getting their data from a csv file of t
 
 ## Generate attendance reports<br>
 All reports are saved under under dir "/Reports" 
-  <img src="https://user-images.githubusercontent.com/119158314/222100702-5c2649be-a1a8-4bd0-9310-4e5d3b5a89ac.png" width="700"><br>  
+<img src="https://user-images.githubusercontent.com/119158314/222112774-e290367d-7f20-4de6-ac18-c21762ac9c7e.png" width="700"><br>
 
 ### Attendance report for a single employee
 Will generate a csv file containing all the employee's registered entries<br>
