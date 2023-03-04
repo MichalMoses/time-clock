@@ -180,6 +180,8 @@ def add_manually(): #propt user input for a single employee details and sends it
     # Label(sub_action_frame,text=f'--Adding employee complete--').grid(row=9,column=0,columnspan=2)
     button_submit.config(state=DISABLED)
 def add_from_file(): #add several new employees to the employee file,  reading the data from a file and sending employee data, one by one, to be written to file
+    #todo validate file format (that all the required columns exist) before calling write_new_emp_to_file
+
     # clear frame from previous action
     for widget in sub_action_frame.winfo_children():
         widget.grid_forget()
@@ -224,12 +226,12 @@ def add_from_file(): #add several new employees to the employee file,  reading t
                     emp = Employee(line[0], line[1], line[2], line[3], line[4], line[5])
                     emp.write_new_emp_to_file()
                 else:
-                    messagebox.showwarning('Action aborted', f'Employee {line[0]} already exists in file')
+                    messagebox.showwarning('Action aborted', f'Employee ID {line[0]} already exists in file, belongs to {line[1]}')
                     continue
     except FileNotFoundError:
-        Label(sub_action_frame,text=f'--File not found--').grid(row=3,column=0, columnspan=2)
+        messagebox.showwarning('Error', f'--File not found--')
     except Exception as err:
-        Label(sub_action_frame,text=f"Something went wrong with opening new employees file for reading. \nError: {err}").grid(row=3,column=0, columnspan=2)
+        messagebox.showwarning('Error', f"Something went wrong with opening new employees file for reading. \nError: {err}")
     finally:
         # Label(sub_action_frame,text=f'--Adding from file complete--').grid(row=3,column=0, columnspan=2)
         open_file_button.config(state=DISABLED)
@@ -298,9 +300,10 @@ def del_manually():
             else: #call the deletion function
                 del_emp(emp_id, name)
                 break #break while loop continue to label
-    # Label(sub_action_frame, text=f"Delete action complete").grid(row=4, column=0, columnspan=2)
-
+    button_submit.config(state=DISABLED)
 def del_from_file():
+    #todo validate the file format (at list the first column) before calling del_emp
+
     # clear frame from previous action
     for widget in sub_action_frame.winfo_children():
         widget.grid_forget()
@@ -473,7 +476,6 @@ def monthly_report():
             add_entry.writerows(monthly_lines)
         messagebox.showinfo('Success', f'--Report created successfully!--\n Saved as "Monthly report {today.month} {today.year}.csv"')
 
-
 def custom_att_report():
     # clear frame from previous action
     for widget in sub_action_frame.winfo_children():
@@ -621,8 +623,6 @@ def late_report():
             write_file.writerow(['Date', 'Time', 'Employee ID']) #it's a new file so we always write the title
             write_file.writerows(late_entries)
         messagebox.showinfo('Success!', f'--Late log create successfully!--\nFile name: Late report {datetime.today().date()}.csv')
-
-
 #utility functions
 def mark_att_all(): #helping function to fill up the log file for testing
     with open('Employees.csv') as csvfile:
@@ -644,9 +644,7 @@ def submit_button(option):
         var_num_report.set(not var_num_report.get())
     elif option=='report_custom':
         var_num_report_custom.set(not var_num_report_custom.get())
-def back_button():
-    main_menu()
-    return
+
 def choose_file(option):
     global file_path, var_num_browse_add, var_num_browse_del
     current_dir = os.getcwd()
@@ -691,12 +689,7 @@ def check_id(emp_id):#received emp_id, validates it, returns emp details
                 raise Exception(f"Something went wrong with generating new employee file for writing. Error: {err}")
         except Exception as err:
             raise (f"Something went wrong with opening employees file for reading. \nError: {err}")
-def clear_subaction():
-    # for widget in sub_action_frame.winfo_children():
-    #     widget.grid_forget()
-    # sub_action_frame.grid_forget()
-    admin_menu()
-    return
+
 def validate_admin(emp_id):
     if emp_id.strip()=='8888':
         admin_menu()
@@ -736,7 +729,7 @@ def admin_menu():
 
 
     #Admin menu frames
-    button_back = Button(admin_menu_frame, text=f"<<back to main", command=back_button)
+    button_back = Button(admin_menu_frame, text=f"<<back to main", command=main_menu())
     # button_clear = Button(admin_menu_frame, text=f'Clear form', command=clear_subaction)
     frame_add_remove = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Actions in employees file')
     frame_admin_reports = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Generate attendance reports')
@@ -854,7 +847,7 @@ global file_path
 # mark_att_all()
 
 # Define label common to all screens
-main_frame=LabelFrame(root, width=600, height=600) #, relief='flat'
+main_frame=LabelFrame(root, width=600, height=600)
 admin_menu_frame=LabelFrame(root,padx=20, pady=10)
 sub_action_frame = LabelFrame(admin_menu_frame, pady=10, padx=20)
 
