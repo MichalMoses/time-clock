@@ -28,7 +28,7 @@ class Employee:
                     # create one input row
                     all_employees.writerow([self.emp_id] + [self.name] + [self.phone] + [self.dob]+[self.rank]+[self.subs]+[self.manager])
             except Exception as err:
-                messagebox.showwarning('Adding new employee issues', f"Something went wrong with writing {self.name}. Error: {err}")
+                messagebox.showwarning('Action failed', f"Something went wrong with writing {self.name}. Error: {err}")
             else:  # print success message
                 messagebox.showinfo('Success!',f'--Employee {self.name} was successfully added to file with ID {self.emp_id}--' )
 
@@ -76,20 +76,28 @@ def add_manually(): #propt user input for a single employee details and sends it
         widget.grid_forget()
     var_rank.set('Choose employees rank')
 
+    top=Toplevel()
+    top.geometry('500x300')
+    top.wm_transient(root)
+    x = root.winfo_x()
+    y = root.winfo_y()
+    top.geometry("+%d+%d" % (x + 100, y + 50))
+
     # prepare frame for current action
-    action_label = Label(sub_action_frame, text=f'--Add new employee to file manually-- \nPlease insert employee details')
-    empid_label=Label(sub_action_frame,text=f"Employee ID 4 digits): ")
-    id_entry =Entry(sub_action_frame, width=35, borderwidth=5)
-    name_label=Label(sub_action_frame,text=f'Employee name')
-    name_entry=Entry(sub_action_frame,width=35,borderwidth=5)
-    phone_label=Label(sub_action_frame,text=f'Phone number')
-    phone_entry=Entry(sub_action_frame,width=35, borderwidth=5)
-    birth_label=Label(sub_action_frame,text=f'Date of birth, YYYY-MM-DD:')
-    birth_entry=Entry(sub_action_frame,width=35,borderwidth=5)
-    rank_label=Label(sub_action_frame,text=f"Employees's rank:")
-    rank_entry=OptionMenu(sub_action_frame, var_rank,*ranks )
-    # button_submit=Button(sub_action_frame, text=f"Submit", command=submit_add)
-    button_submit=Button(sub_action_frame, text=f"Submit", command=lambda :submit_button('add'))
+    action_label = Label(top, text=f'--Add new employee to file manually-- \nPlease insert employee details')
+    empid_label=Label(top,text=f"Employee ID 4 digits): ")
+    id_entry =Entry(top, width=35, borderwidth=5)
+    name_label=Label(top,text=f'Employee name')
+    name_entry=Entry(top,width=35,borderwidth=5)
+    phone_label=Label(top,text=f'Phone number')
+    phone_entry=Entry(top,width=35, borderwidth=5)
+    birth_label=Label(top,text=f'Date of birth, YYYY-MM-DD:')
+    birth_entry=Entry(top,width=35,borderwidth=5)
+    rank_label=Label(top,text=f"Employees's rank:")
+    rank_entry=OptionMenu(top, var_rank,*ranks )
+    button_submit=Button(top, text=f"Submit", command=lambda :submit_button('add'))
+    button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
+
 
     action_label.grid(row=0, column=0, pady=5, columnspan=2)
     empid_label.grid(row=1,column=0, pady=5, sticky=W)
@@ -104,7 +112,7 @@ def add_manually(): #propt user input for a single employee details and sends it
     rank_entry.grid(row=6,column=1, pady=5, sticky=W)
     button_submit.grid(row=7, column=1, pady=5, sticky=W)
     # button_clear.grid(row=8,column=0, pady=5, columnspan=2)
-
+    button_close_top.grid(row=8,column=0, pady=5, columnspan=2)
 
 #todo - sorft employee file, show the user the next avaiable id number
 
@@ -168,7 +176,8 @@ def add_manually(): #propt user input for a single employee details and sends it
     else:
             emp = Employee(emp_id, name, phone, dob, rank)
             emp.write_new_emp_to_file()
-    Label(sub_action_frame,text=f'--Adding employee complete--').grid(row=9,column=0,columnspan=2)
+    # messagebox.showinfo('Success!',f'--Adding employee {name} complete--' )
+    # Label(sub_action_frame,text=f'--Adding employee complete--').grid(row=9,column=0,columnspan=2)
     button_submit.config(state=DISABLED)
 def add_from_file(): #add several new employees to the employee file,  reading the data from a file and sending employee data, one by one, to be written to file
     # clear frame from previous action
@@ -178,14 +187,25 @@ def add_from_file(): #add several new employees to the employee file,  reading t
     var_num_browse_add=IntVar()
     var_num_browse_add.set(0)
 
+    top = Toplevel()
+    top.geometry('500x300')
+    top.wm_transient(root)
+    x = root.winfo_x()
+    y = root.winfo_y()
+    top.geometry("+%d+%d" % (x + 100, y + 50))
+
+
     # define widgets
-    action_label = Label(sub_action_frame, text=f'--Add new employees by file input--')
-    open_label=Label(sub_action_frame,text=f'Choose a file containing the \nemployees you wish to add')
-    open_file_button=Button(sub_action_frame,text=f'Open source file', command=lambda: choose_file('add'))
+    action_label = Label(top, text=f'--Add new employees by file input--')
+    open_label=Label(top,text=f'Choose a file containing the \nemployees you wish to add')
+    open_file_button=Button(top,text=f'Open source file', command=lambda: choose_file('add'))
+    button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
+
     # place widgets
     action_label.grid(row=0, column=0, pady=5, columnspan=2)
     open_label.grid(row=1, column=0, pady=5)
     open_file_button.grid(row=1, column=1, pady=5)
+    button_close_top.grid(row=2, column=0, pady=5, columnspan=2)
 
 
     open_file_button.wait_variable(var_num_browse_add)
@@ -204,15 +224,16 @@ def add_from_file(): #add several new employees to the employee file,  reading t
                     emp = Employee(line[0], line[1], line[2], line[3], line[4], line[5])
                     emp.write_new_emp_to_file()
                 else:
-                    messagebox.showwarning('Writing to file error', f'Employee {line[0]} already exists in file')
+                    messagebox.showwarning('Action aborted', f'Employee {line[0]} already exists in file')
                     continue
     except FileNotFoundError:
         Label(sub_action_frame,text=f'--File not found--').grid(row=3,column=0, columnspan=2)
     except Exception as err:
         Label(sub_action_frame,text=f"Something went wrong with opening new employees file for reading. \nError: {err}").grid(row=3,column=0, columnspan=2)
     finally:
-        Label(sub_action_frame,text=f'--Adding from file complete--').grid(row=3,column=0, columnspan=2)
+        # Label(sub_action_frame,text=f'--Adding from file complete--').grid(row=3,column=0, columnspan=2)
         open_file_button.config(state=DISABLED)
+
 def del_emp(emp_id,name): #delete a single employee from the employee file.
     #get confirmation from user for deletion
     sure = messagebox.askyesno('Confirm deletion', f'Are you sure you want to delete {name}?')
@@ -241,18 +262,26 @@ def del_manually():
     var_num_del = IntVar()
     var_num_del.set(0)
 
+    top = Toplevel()
+    top.geometry('500x300')
+    top.wm_transient(root)
+    x = root.winfo_x()
+    y = root.winfo_y()
+    top.geometry("+%d+%d" % (x + 100, y + 50))
+
     #define widgets
-    title_label=Label(sub_action_frame,text=f'--Delete Employee from file--')
-    id_label=Label(sub_action_frame,text=f'Enter the ID of the employee \nyou wish to remove from file:')
-    id_entry=Entry(sub_action_frame,width=35,borderwidth=5)
-    button_submit = Button(sub_action_frame, text=f"Submit", command=lambda : submit_button('del'))
+    title_label=Label(top,text=f'--Delete Employee from file--')
+    id_label=Label(top,text=f'Enter the ID of the employee \nyou wish to remove from file:')
+    id_entry=Entry(top,width=35,borderwidth=5)
+    button_submit = Button(top, text=f"Submit", command=lambda : submit_button('del'))
+    button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
     #place widgets
     title_label.grid(row=0,column=0, pady=5,columnspan=2)
     id_label.grid(row=1, column=0, pady=5)
     id_entry.grid(row=1, column=1, pady=5)
     button_submit.grid(row=2,column=0, pady=5,columnspan=2)
-
+    button_close_top.grid(row=3,column=0, pady=5,columnspan=2)
     #validating the input by sending to 'check_id' function, only if it exists in file we can delete it
     while True:
         button_submit.wait_variable(var_num_del)
@@ -269,7 +298,8 @@ def del_manually():
             else: #call the deletion function
                 del_emp(emp_id, name)
                 break #break while loop continue to label
-    Label(sub_action_frame, text=f"Delete action complete").grid(row=4, column=0, columnspan=2)
+    # Label(sub_action_frame, text=f"Delete action complete").grid(row=4, column=0, columnspan=2)
+
 def del_from_file():
     # clear frame from previous action
     for widget in sub_action_frame.winfo_children():
@@ -279,15 +309,24 @@ def del_from_file():
     var_num_browse_del= IntVar()
     var_num_browse_del.set(0)
 
+    top = Toplevel()
+    top.geometry('500x300')
+    top.wm_transient(root)
+    x = root.winfo_x()
+    y = root.winfo_y()
+    top.geometry("+%d+%d" % (x + 100, y + 50))
+
     # define widgets
-    action_label = Label(sub_action_frame, text=f'--Delete employees by file input--')
-    open_label=Label(sub_action_frame,text=f'Choose a file containing the employees \nyou wish to delete')
-    open_file_button = Button(sub_action_frame, text=f'Browse', command=lambda: choose_file('del'))
+    action_label = Label(top, text=f'--Delete employees by file input--')
+    open_label=Label(top,text=f'Choose a file containing the employees \nyou wish to delete')
+    open_file_button = Button(top, text=f'Browse', command=lambda: choose_file('del'))
+    button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
     #place widgets
     action_label.grid(row=0, column=0, pady=5,columnspan=2)
     open_label.grid(row=1, column=0, pady=5)
     open_file_button.grid(row=1, column=1, pady=5)
+    button_close_top.grid(row=2, column=1, pady=5)
 
     #wait for the source file input
     open_file_button.wait_variable(var_num_browse_del)
@@ -320,8 +359,9 @@ def del_from_file():
                 del_emp(employee, name)
 
     # when the function finished running print
-    Label(sub_action_frame, text=f'--Deleting from file complete--').grid(row=3,column=0, columnspan=2)
+    # Label(sub_action_frame, text=f'--Deleting from file complete--').grid(row=3,column=0, columnspan=2)
     open_file_button.config(state= DISABLED)
+
 #reports functions
 def emp_att_report():
     #clear frame from previous action
@@ -331,19 +371,27 @@ def emp_att_report():
     var_num_report = IntVar()
     var_num_report.set(0)
 
+    top=Toplevel()
+    top.geometry('500x300')
+    top.wm_transient(root)
+    x = root.winfo_x()
+    y = root.winfo_y()
+    top.geometry("+%d+%d" % (x + 100, y + 50))
+
     #define widgets
-    action_label=Label(sub_action_frame, text=f'--Get employee attendance report--')
-    input_message_label=Label(sub_action_frame,text=f"Please enter employee ID")
-    id_entry=Entry(sub_action_frame, width=20, borderwidth=5)
-    button_submit=Button(sub_action_frame, text=f"Submit", command=lambda : submit_button('report'))
-    label_result = Label(sub_action_frame, text=f"")
+    action_label=Label(top, text=f'--Get employee attendance report--')
+    input_message_label=Label(top,text=f"Please enter employee ID")
+    id_entry=Entry(top, width=20, borderwidth=5)
+    button_submit=Button(top, text=f"Submit", command=lambda : submit_button('report'))
+    button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
+
 
     #arrange widgets
     action_label.grid(row=0, column=0, pady=5, columnspan=2)
     input_message_label.grid(row=1, column=0, pady=5)
     id_entry.grid(row=1, column=1, pady=5)
     button_submit.grid(row=2, column=0, pady=5, columnspan=2)
-    label_result.grid(row=3, column=0, pady=5, columnspan=2)
+    button_close_top.grid(row=4, column=0, columnspan=2)
 
     #prompt user from emp_id
     while True:
@@ -370,13 +418,13 @@ def emp_att_report():
                     if str(emp_id) == line[2]:
                         emp_att.append(line)
             if len(emp_att)==0:
-                    label_result.config(text=f'No log entries for this employee')
+                    messagebox.showwarning('Action aborted', f'No log entries for this employee\nReport was not generated')
                     return
     except FileNotFoundError:
-            label_result.config(text=f'No log entries history exist yet')
+            messagebox.showwarning('Action aborted', f'No log entries history exist yet\nReport was not generated')
             return
     except Exception as err:
-            label_result.config(text=f"Something went wrong with opening attendance file for reading. \nError: {err}")
+            messagebox.showwarning('Action aborted', f"Something went wrong with opening attendance file for reading. \nError: {err}\nReport was not generated'")
             return
 
     #open attendance file and write the entry
@@ -391,9 +439,9 @@ def emp_att_report():
                 add_entry.writerow(['Date', 'Time', 'Employee ID','Name','Rank'])
                 add_entry.writerows(emp_att)
     except Exception as err :
-        label_result.config(text=f'something went wrong with opening employee attendance report for writing. \nError: {err}')
+        messagebox.showwarning('Action aborted',f'something went wrong with opening employee attendance report for writing. \nError: {err}\nReport was not generated' )
     else:
-        label_result.config(text=f'--Action complete. \nYour report name is "Employee {name} attendance report {datetime.today().date()}.csv"')
+        messagebox.showinfo('Success',f'--Action complete-- \nYour report name is "Employee {name} attendance report {datetime.today().date()}.csv"' )
 
     button_submit.config(state=DISABLED)
     id_entry.delete(0,END)
@@ -401,15 +449,6 @@ def monthly_report():
     #clear frame from previous action
     for widget in sub_action_frame.winfo_children():
         widget.grid_forget()
-
-    #define widgets
-    action_label = Label(sub_action_frame, text=f'--Get monthly attendance report--')
-    label_result = Label(sub_action_frame, text=f"")
-
-    #place widgets
-    action_label.grid(row=0, column=0, pady=5)
-    label_result.grid(row=1,column=0, pady=5)
-
 
     #go over attandance file print all the lines with the current date
     today=datetime.today().date()
@@ -423,15 +462,18 @@ def monthly_report():
                 if log_date.month==today.month and log_date.year==today.year:
                     monthly_lines.append(line)
     except FileNotFoundError:
-        label_result.config(text=f'No log entries history exist yet')
+        messagebox.showwarning('Action aborted', f'No log entries history exist yet\nReport was not generated')
     except Exception as err:
-        label_result.config(text=f'Something went wrong with opening attendance file for reading.\nError: {err}')
+        messagebox.showwarning('Action aborted', f'Something went wrong with opening attendance file for reading.\nError: {err}\nReport was not generated')
+
     else:
         with open(f'Reports/Monthly report {today.month} {today.year}.csv', 'w', newline='') as csvfile:
             add_entry=csv.writer(csvfile)
             add_entry.writerow(['Date', 'Time', 'Employee ID'])
             add_entry.writerows(monthly_lines)
-        label_result.config(text=f'--Report created successfully!\n Saved as "Monthly report {today.month} {today.year}"--')
+        messagebox.showinfo('Success', f'--Report created successfully!--\n Saved as "Monthly report {today.month} {today.year}.csv"')
+
+
 def custom_att_report():
     # clear frame from previous action
     for widget in sub_action_frame.winfo_children():
@@ -447,24 +489,34 @@ def custom_att_report():
     var_num_report_custom = IntVar()
     var_num_report_custom.set(0)
 
+    top=Toplevel()
+    top.geometry('600x500')
+    top.wm_transient(root)
+    x = root.winfo_x()
+    y = root.winfo_y()
+    top.geometry("+%d+%d" % (x + 50, y + 50))
+
 
     #define widgets
-    action_label = Label(sub_action_frame, text=f'--Generate a specific attendance report--')
-    label_rank=Label(sub_action_frame,text=f"Employees rank:")
-    rank_entry=OptionMenu(sub_action_frame,var_rank,*ranks)
-    label_time_range=Label(sub_action_frame, text=f'Date range:')
+    action_label = Label(top, text=f'--Generate a specific attendance report--')
+    label_rank=Label(top,text=f"Employees rank:")
+    rank_entry=OptionMenu(top,var_rank,*ranks)
+    label_time_range=Label(top, text=f'Date range:')
 
-    label_start_date=Label(sub_action_frame,text=f'Start date')
-    start_date_entry=Entry(sub_action_frame, textvariable=var_start_date ,width=20, borderwidth=5)
-    cal_start_date=Calendar(sub_action_frame, selectmode='day',date_pattern='yyyy-mm-dd',year=datetime.today().year, month=datetime.today().month, day=datetime.today().day)
+    label_start_date=Label(top,text=f'Start date')
+    start_date_entry=Entry(top, textvariable=var_start_date ,width=20, borderwidth=5)
+    cal_start_date=Calendar(top, selectmode='day',date_pattern='yyyy-mm-dd',year=datetime.today().year, month=datetime.today().month, day=datetime.today().day)
 
-    label_end_date=Label(sub_action_frame,text=f'End date')
-    end_date_entry=Entry(sub_action_frame, textvariable=var_end_date, width=20, borderwidth=5)
-    cal_end_date=Calendar(sub_action_frame, selectmode='day',date_pattern='yyyy-mm-dd',year=datetime.today().year, month=datetime.today().month, day=datetime.today().day)
+    label_end_date=Label(top,text=f'End date')
+    end_date_entry=Entry(top, textvariable=var_end_date, width=20, borderwidth=5)
+    cal_end_date=Calendar(top, selectmode='day',date_pattern='yyyy-mm-dd',year=datetime.today().year, month=datetime.today().month, day=datetime.today().day)
 
-    button_select_date=Button(sub_action_frame,text=f'Get calendar selection', command=lambda : grab_date(cal_start_date,cal_end_date))
-    button_submit=Button(sub_action_frame, text=f'Submit', command=lambda : submit_button('report_custom'))
-    result_label=Label(sub_action_frame,text=f"")
+    button_select_date=Button(top,text=f'Get calendar selection', command=lambda : grab_date(cal_start_date,cal_end_date))
+    button_submit=Button(top, text=f'Submit', command=lambda : submit_button('report_custom'))
+    # result_label=Label(top,text=f"")
+
+    button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
+
 
     #Place widgets
     action_label.grid(row=0,column=0, columnspan=2, pady=5)
@@ -482,7 +534,10 @@ def custom_att_report():
 
     button_select_date.grid(row=6, column=0,sticky=W, pady=5)
     button_submit.grid(row=7, column=0,sticky=W, pady=5)
-    result_label.grid(row=8,column=0, columnspan=5,sticky=W, pady=5)
+    # result_label.grid(row=8,column=0, columnspan=5,sticky=W, pady=5)
+
+    button_close_top.grid(row=9, column=0, columnspan=5,sticky=W, pady=5)
+
 
     #get input and validate
     while True:
@@ -490,7 +545,7 @@ def custom_att_report():
         #get user input for rank
         rank=var_rank.get()
         if rank not in ranks:
-            messagebox.showwarning('Rank input error', 'Please choose from list')
+            messagebox.showwarning('Rank input error', 'Please choose a rank from list')
             continue
         #get user input for time range
         start_date_str=start_date_entry.get()
@@ -531,19 +586,14 @@ def custom_att_report():
             add_entry=csv.writer(csvfile)
             add_entry.writerow(['Date', 'Time', 'Employee ID', 'Name', 'Rank'])
             add_entry.writerows(report_lines)
-        result_label.config(text= f'--Report created successfully! \nSaved as "Att report {start_date} to {end_date} {rank} ranks.csv"--')
+        messagebox.showinfo('Success', f'--Report created successfully!-- \nSaved as "Att report {start_date} to {end_date} {rank} ranks.csv"')
+        # result_label.config(text= f'--Report created successfully! \nSaved as "Att report {start_date} to {end_date} {rank} ranks.csv"--')
     button_submit.config(state=DISABLED)
 def late_report():
     # clear frame from previous action
     for widget in sub_action_frame.winfo_children():
         widget.grid_forget()
 
-    # define widgets
-    action_label = Label(sub_action_frame, text=f'--Get late attendance report--')
-    label_result = Label(sub_action_frame, text=f"")
-    #place widgets
-    action_label.grid(row=0, column=0, pady=5)
-    label_result.grid(row=1, column=0, pady=5)
 
 
     # open attendance report, go over all the entries, create a local list with all the entries which were recorded after 9:30
@@ -559,15 +609,20 @@ def late_report():
                 if log_time>=late_time:
                     late_entries.append(line)
     except FileNotFoundError:
-        label_result.config(text=f'No log entries history exists yet')
+        messagebox.showwarning('Action failed', f'No log entries history exists yet\nReport not created')
+
     except Exception as err:
-        label_result.config(text=f"Something went wrong with opening attendance file for reading. \nError: {err}")
+        messagebox.showwarning('Action failed', f"Something went wrong with opening attendance file for reading. \nError: {err}")
+
+
     else: #open 'late report' as w (if already exist we can override it), and write the list of the relevant entries that we created into this file.
         with  open(f'Reports/Late report {datetime.today().date()}.csv', 'w', newline='') as csvfile:
             write_file=csv.writer(csvfile)
             write_file.writerow(['Date', 'Time', 'Employee ID']) #it's a new file so we always write the title
             write_file.writerows(late_entries)
-        label_result.config(text=f'--Late log create successfully! \nFile name: Late report {datetime.today().date()}.csv--')
+        messagebox.showinfo('Success!', f'--Late log create successfully!--\nFile name: Late report {datetime.today().date()}.csv')
+
+
 #utility functions
 def mark_att_all(): #helping function to fill up the log file for testing
     with open('Employees.csv') as csvfile:
@@ -682,7 +737,7 @@ def admin_menu():
 
     #Admin menu frames
     button_back = Button(admin_menu_frame, text=f"<<back to main", command=back_button)
-    button_clear = Button(admin_menu_frame, text=f'Clear form', command=clear_subaction)
+    # button_clear = Button(admin_menu_frame, text=f'Clear form', command=clear_subaction)
     frame_add_remove = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Actions in employees file')
     frame_admin_reports = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Generate attendance reports')
 
@@ -716,7 +771,7 @@ def admin_menu():
     button_custom_report.grid(pady=5, row=3, column=0, sticky=W)
 
     sub_action_frame.grid(row=2,column=0,columnspan=2)
-    button_clear.grid(row=3, column=0, sticky=W)
+    # button_clear.grid(row=3, column=0, sticky=W)
     button_back.grid(row=4,column=0, sticky= W)
 
 def main_menu():
@@ -792,7 +847,7 @@ def main_menu():
 
 root = Tk()
 root.title('Employee Management System')
-root.geometry('700x800')
+root.geometry('700x300')
 var_num = IntVar()
 
 global file_path
