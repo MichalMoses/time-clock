@@ -152,6 +152,7 @@ def add_manually(): #propt user input for a single employee details and sends it
         birth_date=birth_entry.get().strip()
         try:
             dob=date.fromisoformat(birth_date)
+            type(dob)
         except Exception:
             messagebox.showwarning('Date input issue', f'Date not according to format. Please type again.')
             continue
@@ -171,14 +172,14 @@ def add_manually(): #propt user input for a single employee details and sends it
 
     if rank=='Manager':#if all the inputs were ok, the while loop didn't 'continue' and got down to here, we can write to file
             subs=[]
-            emp = Manager(emp_id, name, phone, dob, 'Manager', subs)
+            emp = Manager(emp_id, name, phone, str(dob), 'Manager', subs)
             emp.write_new_emp_to_file()
     else:
-            emp = Employee(emp_id, name, phone, dob, rank)
+            emp = Employee(emp_id, name, phone, str(dob), rank)
             emp.write_new_emp_to_file()
     # messagebox.showinfo('Success!',f'--Adding employee {name} complete--' )
     # Label(sub_action_frame,text=f'--Adding employee complete--').grid(row=9,column=0,columnspan=2)
-    button_submit.config(state=DISABLED)
+    top.destroy()
 def add_from_file(): #add several new employees to the employee file,  reading the data from a file and sending employee data, one by one, to be written to file
     #todo validate file format (that all the required columns exist) before calling write_new_emp_to_file
 
@@ -234,7 +235,7 @@ def add_from_file(): #add several new employees to the employee file,  reading t
         messagebox.showwarning('Error', f"Something went wrong with opening new employees file for reading. \nError: {err}")
     finally:
         # Label(sub_action_frame,text=f'--Adding from file complete--').grid(row=3,column=0, columnspan=2)
-        open_file_button.config(state=DISABLED)
+        top.destroy()
 
 def del_emp(emp_id,name): #delete a single employee from the employee file.
     #get confirmation from user for deletion
@@ -256,6 +257,8 @@ def del_emp(emp_id,name): #delete a single employee from the employee file.
                     file_writer.writerow(line) #write all lines to a new file
         # print user message that action completed
         messagebox.showinfo('Delete employee', f'-- {name} was successfully deleted from file!--') # print a message to user with data of the action
+
+
 def del_manually():
     #clear frame from previous action
     for widget in sub_action_frame.winfo_children():
@@ -300,7 +303,7 @@ def del_manually():
             else: #call the deletion function
                 del_emp(emp_id, name)
                 break #break while loop continue to label
-    button_submit.config(state=DISABLED)
+    top.destroy()
 def del_from_file():
     #todo validate the file format (at list the first column) before calling del_emp
 
@@ -363,7 +366,7 @@ def del_from_file():
 
     # when the function finished running print
     # Label(sub_action_frame, text=f'--Deleting from file complete--').grid(row=3,column=0, columnspan=2)
-    open_file_button.config(state= DISABLED)
+    top.destroy()
 
 #reports functions
 def emp_att_report():
@@ -446,8 +449,8 @@ def emp_att_report():
     else:
         messagebox.showinfo('Success',f'--Action complete-- \nYour report name is "Employee {name} attendance report {datetime.today().date()}.csv"' )
 
-    button_submit.config(state=DISABLED)
-    id_entry.delete(0,END)
+    # id_entry.delete(0,END)
+    top.destroy()
 def monthly_report():
     #clear frame from previous action
     for widget in sub_action_frame.winfo_children():
@@ -577,6 +580,7 @@ def custom_att_report():
                     report_lines.append(line)
             if len(report_lines)==0:
                 messagebox.showwarning('No Data', 'There are no log entries for these dates and rank')
+                button_submit.config(state=DISABLED)
                 return
     except FileNotFoundError:
         messagebox.showwarning('No Data', 'No log entries history exist yet')
@@ -590,7 +594,8 @@ def custom_att_report():
             add_entry.writerows(report_lines)
         messagebox.showinfo('Success', f'--Report created successfully!-- \nSaved as "Att report {start_date} to {end_date} {rank} ranks.csv"')
         # result_label.config(text= f'--Report created successfully! \nSaved as "Att report {start_date} to {end_date} {rank} ranks.csv"--')
-    button_submit.config(state=DISABLED)
+
+    top.destroy()
 def late_report():
     # clear frame from previous action
     for widget in sub_action_frame.winfo_children():
@@ -729,7 +734,7 @@ def admin_menu():
 
 
     #Admin menu frames
-    button_back = Button(admin_menu_frame, text=f"<<back to main", command=main_menu())
+    button_back = Button(admin_menu_frame, text=f"<<back to main", command=main_menu)
     # button_clear = Button(admin_menu_frame, text=f'Clear form', command=clear_subaction)
     frame_add_remove = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Actions in employees file')
     frame_admin_reports = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Generate attendance reports')
@@ -840,8 +845,9 @@ def main_menu():
 
 root = Tk()
 root.title('Employee Management System')
-root.geometry('700x300')
+root.geometry('700x500')
 var_num = IntVar()
+var_num.set(0)
 
 global file_path
 # mark_att_all()
