@@ -381,11 +381,13 @@ def del_from_file_func():
     top.destroy()
 
 #reports functions
-def emp_att_report():
+def emp_att_report_screen():
+    global top
+    global id_entry_att
 
-    global var_num_report
-    var_num_report = IntVar()
-    var_num_report.set(0)
+    # global var_num_report
+    # var_num_report = IntVar()
+    # var_num_report.set(0)
 
     top=Toplevel()
     top.geometry('500x300')
@@ -397,38 +399,43 @@ def emp_att_report():
     #define widgets
     action_label=Label(top, text=f'--Get employee attendance report--')
     input_message_label=Label(top,text=f"Please enter employee ID")
-    id_entry=Entry(top, width=20, borderwidth=5)
-    button_submit=Button(top, text=f"Submit", command=lambda : submit_button('report'))
+    id_entry_att=Entry(top, width=20, borderwidth=5)
+    # button_submit=Button(top, text=f"Submit", command=lambda : submit_button('report'))
+    button_submit=Button(top, text=f"Submit", command=emp_att_report_func)
     button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
 
     #arrange widgets
     action_label.grid(row=0, column=0, pady=5, columnspan=2)
     input_message_label.grid(row=1, column=0, pady=5)
-    id_entry.grid(row=1, column=1, pady=5)
+    id_entry_att.grid(row=1, column=1, pady=5)
     button_submit.grid(row=2, column=0, pady=5, columnspan=2)
     button_close_top.grid(row=4, column=0, columnspan=2)
 
-    #prompt user from emp_id
-    while True:
-        button_submit.wait_variable(var_num_report)
-        emp_id = id_entry.get().strip()
-        try:
-            id_check, name, dob, rank = check_id(emp_id)
-        except Exception as err:
-            messagebox.showwarning('ID input issue', f'{err}')
-            continue
-        else:
-            if id_check == 0:
-                messagebox.showwarning('ID input issue', f'Employee doesnt exist in file \nAdd employees to DB via Admin menu')
-                continue
-        break
+def emp_att_report_func():
+    global id_entry_att, top
+
+    #valideate the id entry
+        # button_submit.wait_variable(var_num_report)
+    emp_id = id_entry_att.get().strip()
+    try:
+        id_check, name, dob, rank = check_id(emp_id)
+    except Exception as err:
+        messagebox.showwarning('ID input issue', f'{err}')
+        id_entry_att.delete(0,END)
+        return
+    else:
+        if id_check == 0:
+            messagebox.showwarning('ID input issue', f'Employee doesnt exist in file \nAdd employees to DB via Admin menu')
+            id_entry_att.delete(0, END)
+            return
+
 
         #open attendance file to read it, if not existing prompt message
     try:
         with open('Attendance.csv') as csvfile:
             attendance=csv.reader(csvfile)
-            # create a new list with the relevant employee's entrances. list of list
+            # create a new list with the relevant employee's entrances. list of lists
             emp_att = []
             for line in attendance:
                     if str(emp_id) == line[2]:
@@ -459,8 +466,8 @@ def emp_att_report():
     else:
         messagebox.showinfo('Success',f'--Action complete-- \nYour report name is "Employee {name} attendance report {datetime.today().date()}.csv"' )
 
-    # id_entry.delete(0,END)
-    top.destroy()
+    id_entry_att.delete(0,END)
+
 def monthly_report():
 
     #go over attandance file get all the lines with the current month
@@ -476,6 +483,7 @@ def monthly_report():
                     monthly_lines.append(line)
     except FileNotFoundError:
         messagebox.showwarning('Action aborted', f'No log entries history exist yet\nReport was not generated')
+
     except Exception as err:
         messagebox.showwarning('Action aborted', f'Something went wrong with opening attendance file for reading.\nError: {err}\nReport was not generated')
 
@@ -486,18 +494,20 @@ def monthly_report():
             add_entry.writerows(monthly_lines)
         messagebox.showinfo('Success', f'--Report created successfully!--\n Saved as "Monthly report {today.month} {today.year}.csv"')
 
-def custom_att_report():
+def custom_att_report_screen():
 
+    global var_rank, ranks, top
     var_rank=StringVar()
     var_rank.set("Choose a rank    ")
     ranks=['Junior', 'Senior', 'Manager', 'All']
     global var_start_date,  var_end_date, var_num_report_custom
+    global start_date_entry, end_date_entry
     var_start_date=StringVar()
     var_start_date.set('Choose start date')
     var_end_date=StringVar()
     var_end_date.set('Choose end date')
-    var_num_report_custom = IntVar()
-    var_num_report_custom.set(0)
+    # var_num_report_custom = IntVar()
+    # var_num_report_custom.set(0)
 
     top=Toplevel()
     top.geometry('600x500')
@@ -522,7 +532,8 @@ def custom_att_report():
     cal_end_date=Calendar(top, selectmode='day',date_pattern='yyyy-mm-dd',year=datetime.today().year, month=datetime.today().month, day=datetime.today().day)
 
     button_select_date=Button(top,text=f'Get calendar selection', command=lambda : grab_date(cal_start_date,cal_end_date))
-    button_submit=Button(top, text=f'Submit', command=lambda : submit_button('report_custom'))
+    # button_submit=Button(top, text=f'Submit', command=lambda : submit_button('report_custom'))
+    button_submit=Button(top, text=f'Submit', command=custom_att_report_func)
     # result_label=Label(top,text=f"")
 
     button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
@@ -548,31 +559,35 @@ def custom_att_report():
 
     button_close_top.grid(row=9, column=0, columnspan=5,sticky=W, pady=5)
 
+def custom_att_report_func():
+    global var_rank, ranks, top
+    global var_start_date,  var_end_date, var_num_report_custom
+    global start_date_entry, end_date_entry
+
 
     #get input and validate
-    while True:
-        button_submit.wait_variable(var_num_report_custom)
+        # button_submit.wait_variable(var_num_report_custom)
         #get user input for rank
-        rank=var_rank.get()
-        if rank not in ranks:
-            messagebox.showwarning('Rank input error', 'Please choose a rank from list')
-            continue
-        #get user input for time range
-        start_date_str=start_date_entry.get()
-        end_date_str=end_date_entry.get()
-        try:
-            start_date=date.fromisoformat(start_date_str)
-            end_date=date.fromisoformat(end_date_str)
-            if start_date>datetime.today().date():
-                messagebox.showwarning('Date input error', 'Start date cannot be in the future')
-                continue
-            if end_date<start_date:
-                messagebox.showwarning('Date input error', 'End date cannot be before start date')
-                continue
-        except Exception as err:
-            messagebox.showwarning('Date input error', f'Invalid date input, please try again. \nError: {err} ')
-            continue
-        break
+    rank=var_rank.get()
+    if rank not in ranks:
+        messagebox.showwarning('Rank input error', 'Please choose a rank from list')
+        return
+    #get user input for time range
+    start_date_str=start_date_entry.get()
+    end_date_str=end_date_entry.get()
+    try:
+        start_date=date.fromisoformat(start_date_str)
+        end_date=date.fromisoformat(end_date_str)
+        if start_date>datetime.today().date():
+            messagebox.showwarning('Date input error', 'Start date cannot be in the future')
+            return
+        if end_date<start_date:
+            messagebox.showwarning('Date input error', 'End date cannot be before start date')
+            return
+    except Exception as err:
+        messagebox.showwarning('Date input error', f'Invalid date input, please try again. \nError: {err} ')
+        return
+
     #go over attandance file and collect all the lines with the required values
     try:
         with open('Attendance.csv') as csvfile:
@@ -585,7 +600,6 @@ def custom_att_report():
                     report_lines.append(line)
             if len(report_lines)==0:
                 messagebox.showwarning('No Data', 'There are no log entries for these dates and rank')
-                button_submit.config(state=DISABLED)
                 return
     except FileNotFoundError:
         messagebox.showwarning('No Data', 'No log entries history exist yet')
@@ -601,6 +615,7 @@ def custom_att_report():
         # result_label.config(text= f'--Report created successfully! \nSaved as "Att report {start_date} to {end_date} {rank} ranks.csv"--')
 
     top.destroy()
+
 def late_report():
 
 
@@ -750,10 +765,10 @@ def admin_menu(emp_id):
     button_delete_from_file = Button(frame_add_remove, text=f'Delete Employee from file', width=30, command=del_from_file_screen)
 
     # widgets in reports frame
-    button_attendance_report_employee = Button(frame_admin_reports, text=f'Attendance report for a single employee', width=30, command=emp_att_report)
+    button_attendance_report_employee = Button(frame_admin_reports, text=f'Attendance report for a single employee', width=30, command=emp_att_report_screen)
     button_attendance_this_month = Button(frame_admin_reports, text=f'Current month report for all employees', width=30, command=monthly_report)
     button_late_report = Button(frame_admin_reports, text=f'Late employees report', width=30, command=late_report)
-    button_custom_report = Button(frame_admin_reports, text=f'Custom attendance report', width=30, command=custom_att_report)
+    button_custom_report = Button(frame_admin_reports, text=f'Custom attendance report', width=30, command=custom_att_report_screen)
 
     admin_menu_frame.place(x=350, y=30, anchor=N)
     label_welcome.grid(row=0, column=0, columnspan=2)
