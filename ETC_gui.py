@@ -66,11 +66,8 @@ def mark_att(emp_id,name,rank): #function will return True if writing went ok, w
 #add\delete functions
 def add_manually_screen(): #propt user input for a single employee details and sends it to be written to file
     #todo - every time we add an employee sort the file by id
-    # global var_num_add
+
     global ranks, var_rank
-    # var_num_add=IntVar()
-    # var_num_add.set(0)
-    # var_num.set(0)
     ranks=['Junior', 'Senior', 'Manager']
     var_rank=StringVar()
     var_rank.set('Choose employees rank')
@@ -98,7 +95,6 @@ def add_manually_screen(): #propt user input for a single employee details and s
     birth_entry=Entry(top,width=35,borderwidth=5)
     rank_label=Label(top,text=f"Employees's rank:")
     rank_entry=OptionMenu(top, var_rank, *ranks )
-    # button_submit=Button(top, text=f"Submit", command=lambda :submit_button('add'))
     button_submit=Button(top, text=f"Submit", command=add_manually_func)
     button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
@@ -187,9 +183,6 @@ def add_from_file_screen(): #add several new employees to the employee file,  re
     #todo validate file format (that all the required columns exist) before calling write_new_emp_to_file
 
     global top
-    global var_num_browse_add
-    var_num_browse_add=IntVar()
-    var_num_browse_add.set(0)
 
     top = Toplevel()
     top.geometry('500x300')
@@ -213,9 +206,8 @@ def add_from_file_screen(): #add several new employees to the employee file,  re
     button_close_top.grid(row=2, column=0, pady=5, columnspan=2)
 
 def add_from_file_func():
-    # open_file_button.wait_variable(var_num_browse_add)
     global top
-    file_path = choose_file_new()
+    file_path = choose_file()
     #open the source file with the new employees, read it, for each line validate id and send wrtitten to file
     try:
         with open(file_path) as csvfile:
@@ -265,9 +257,6 @@ def del_emp(emp_id,name): #delete a single employee from the employee file.
 
 def del_manually_screen():
 
-    global var_num_del
-    var_num_del = IntVar()
-    var_num_del.set(0)
 
     global top, id_entry_del
     top = Toplevel()
@@ -281,7 +270,6 @@ def del_manually_screen():
     title_label=Label(top,text=f'--Delete Employee from file--')
     id_label=Label(top,text=f'Enter the ID of the employee \nyou wish to remove from file:')
     id_entry_del=Entry(top,width=35,borderwidth=5)
-    # button_submit = Button(top, text=f"Submit", command=lambda : submit_button('del'))
     button_submit = Button(top, text=f"Submit", command=del_manually_func)
     button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
@@ -295,7 +283,6 @@ def del_manually_screen():
 def del_manually_func():
     global id_entry_del
     #validating the input by sending to 'check_id' function, only if it exists in file we can delete it
-    # button_submit.wait_variable(var_num_del)
     emp_id = id_entry_del.get().strip()
     id_entry_del.delete(0,END)
     try:
@@ -319,9 +306,6 @@ def del_from_file_screen():
 
     # global file_path
     global top
-    # global var_num_browse_del
-    # var_num_browse_del= IntVar()
-    # var_num_browse_del.set(0)
 
     top = Toplevel()
     top.geometry('500x300')
@@ -346,10 +330,7 @@ def del_from_file_screen():
 def del_from_file_func():
 
     global top
-    file_path = choose_file_new()
-
-    # #wait for the source file input
-    # open_file_button.wait_variable(var_num_browse_del)
+    file_path = choose_file()
 
     #open source file with the employees you want to delete and get all the ids into a list
     try:
@@ -361,7 +342,6 @@ def del_from_file_func():
                 all_ids.append(line[0])
     except Exception as err: #error if something went wrong with reading the source file
         messagebox.showwarning('File reading error',f"Something went wrong with opening {file_path} file for reading. \nError: {err}")
-        # open_file_button.config(state=DISABLED)
         return
 
     # take the list of ids, send each one to be validated and then to be deleted.
@@ -385,10 +365,6 @@ def emp_att_report_screen():
     global top
     global id_entry_att
 
-    # global var_num_report
-    # var_num_report = IntVar()
-    # var_num_report.set(0)
-
     top=Toplevel()
     top.geometry('500x300')
     top.wm_transient(root)
@@ -400,7 +376,6 @@ def emp_att_report_screen():
     action_label=Label(top, text=f'--Get employee attendance report--')
     input_message_label=Label(top,text=f"Please enter employee ID")
     id_entry_att=Entry(top, width=20, borderwidth=5)
-    # button_submit=Button(top, text=f"Submit", command=lambda : submit_button('report'))
     button_submit=Button(top, text=f"Submit", command=emp_att_report_func)
     button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
@@ -416,7 +391,6 @@ def emp_att_report_func():
     global id_entry_att, top
 
     #valideate the id entry
-        # button_submit.wait_variable(var_num_report)
     emp_id = id_entry_att.get().strip()
     try:
         id_check, name, dob, rank = check_id(emp_id)
@@ -500,14 +474,13 @@ def custom_att_report_screen():
     var_rank=StringVar()
     var_rank.set("Choose a rank    ")
     ranks=['Junior', 'Senior', 'Manager', 'All']
-    global var_start_date,  var_end_date, var_num_report_custom
+    global var_start_date,  var_end_date
     global start_date_entry, end_date_entry
     var_start_date=StringVar()
     var_start_date.set('Choose start date')
     var_end_date=StringVar()
     var_end_date.set('Choose end date')
-    # var_num_report_custom = IntVar()
-    # var_num_report_custom.set(0)
+
 
     top=Toplevel()
     top.geometry('600x500')
@@ -532,9 +505,7 @@ def custom_att_report_screen():
     cal_end_date=Calendar(top, selectmode='day',date_pattern='yyyy-mm-dd',year=datetime.today().year, month=datetime.today().month, day=datetime.today().day)
 
     button_select_date=Button(top,text=f'Get calendar selection', command=lambda : grab_date(cal_start_date,cal_end_date))
-    # button_submit=Button(top, text=f'Submit', command=lambda : submit_button('report_custom'))
     button_submit=Button(top, text=f'Submit', command=custom_att_report_func)
-    # result_label=Label(top,text=f"")
 
     button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
@@ -555,18 +526,16 @@ def custom_att_report_screen():
 
     button_select_date.grid(row=6, column=0,sticky=W, pady=5)
     button_submit.grid(row=7, column=0,sticky=W, pady=5)
-    # result_label.grid(row=8,column=0, columnspan=5,sticky=W, pady=5)
 
     button_close_top.grid(row=9, column=0, columnspan=5,sticky=W, pady=5)
 
 def custom_att_report_func():
     global var_rank, ranks, top
-    global var_start_date,  var_end_date, var_num_report_custom
+    global var_start_date,  var_end_date
     global start_date_entry, end_date_entry
 
 
     #get input and validate
-        # button_submit.wait_variable(var_num_report_custom)
         #get user input for rank
     rank=var_rank.get()
     if rank not in ranks:
@@ -612,7 +581,6 @@ def custom_att_report_func():
             add_entry.writerow(['Date', 'Time', 'Employee ID', 'Name', 'Rank'])
             add_entry.writerows(report_lines)
         messagebox.showinfo('Success', f'--Report created successfully!-- \nSaved as "Att report {start_date} to {end_date} {rank} ranks.csv"')
-        # result_label.config(text= f'--Report created successfully! \nSaved as "Att report {start_date} to {end_date} {rank} ranks.csv"--')
 
     top.destroy()
 
@@ -652,31 +620,7 @@ def mark_att_all(): #helping function to fill up the log file for testing
         for line in all_employees:
             mark_att(line[0],line[1],line[4])
 #button functions
-def submit_button(option):
-    global var_num_login, var_num_add, var_num_del, var_num_report, var_num_report_custom
-    #several buttons call this function, we check which button called it and update the variable accordingly
-    if option=='login':
-        var_num_login.set(not var_num_login.get())
-    elif option=='add':
-        var_num_add.set(not var_num_add.get())
-    elif option =='del':
-        var_num_del.set(not var_num_del.get())
-    elif option=='report':
-        var_num_report.set(not var_num_report.get())
-    elif option=='report_custom':
-        var_num_report_custom.set(not var_num_report_custom.get())
-
-# def choose_file(option):
-#     global file_path, var_num_browse_add, var_num_browse_del
-#     current_dir = os.getcwd()
-#     root.filename=filedialog.askopenfilename(initialdir=current_dir, title='Select a file', filetypes=(('csv files','*.csv'),('all files','*.*')))
-#     file_path=root.filename
-#     if option=='add':
-#         var_num_browse_add.set(1)
-#     elif option == 'del':
-#         var_num_browse_del.set(1)
-#     return
-def choose_file_new():
+def choose_file():
     current_dir = os.getcwd()
     root.filename=filedialog.askopenfilename(initialdir=current_dir, title='Select a file', filetypes=(('csv files','*.csv'),('all files','*.*')))
     file_path = root.filename
@@ -754,7 +698,6 @@ def admin_menu(emp_id):
 
     #Admin menu frames
     button_back = Button(admin_menu_frame, text=f"<<back to main", command=main_menu)
-    # button_clear = Button(admin_menu_frame, text=f'Clear form', command=clear_subaction)
     frame_add_remove = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Actions in employees file')
     frame_admin_reports = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Generate attendance reports')
 
@@ -797,17 +740,13 @@ def main_menu():
     admin_menu_frame.place_forget()
     button_start.forget()
 
-    global var_num_login, id_entry_main
-    var_num_login=IntVar()
-    var_num_login.set(0)
+    global id_entry_main
 
     # Define main screen labels and buttons
     label_welcome = Label(main_frame, text=f'Welcome to employee time clock')
     label_welcome.config(font=('Helvatical bold', 12))
     input_message_label = Label(main_frame, text=f"Eenter your employee ID to log in \n Enter admin ID and click 'admin menu' for more options")
     id_entry_main = Entry(main_frame, width=20, borderwidth=5)
-    # button_log_in = Button(main_frame, text=f'Log in', width=10, command=lambda : submit_button('login'))
-    # button_log_in = Button(main_frame, text=f'Log in', width=10, command=lambda : login(id_entry.get()))
     button_log_in = Button(main_frame, text=f'Log in', width=10, command=login)
     button_admin = Button(main_frame, text=f'Admin menu', width=10, command=lambda : admin_menu(id_entry_main.get()))
     label_action_result = Label(main_frame, text=f"")
@@ -875,8 +814,6 @@ if __name__ == "__main__":
     root = Tk()
     root.title('Employee Management System')
     root.geometry('700x400')
-    var_num = IntVar()
-    var_num.set(0)
 
     global file_path
 
