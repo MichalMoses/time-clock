@@ -1,3 +1,4 @@
+import tkinter as tk
 from datetime import *
 import csv
 from tkinter import *
@@ -68,12 +69,10 @@ def add_manually(): #propt user input for a single employee details and sends it
     global var_num_add
     var_num_add=IntVar()
     var_num_add.set(0)
+    var_num.set(0)
     var_rank=StringVar()
     ranks=['Junior', 'Senior', 'Manager']
 
-    # clear frame from previous action
-    for widget in sub_action_frame.winfo_children():
-        widget.grid_forget()
     var_rank.set('Choose employees rank')
 
     top=Toplevel()
@@ -111,13 +110,13 @@ def add_manually(): #propt user input for a single employee details and sends it
     rank_label.grid(row=6,column=0, pady=5, sticky=W)
     rank_entry.grid(row=6,column=1, pady=5, sticky=W)
     button_submit.grid(row=7, column=1, pady=5, sticky=W)
-    # button_clear.grid(row=8,column=0, pady=5, columnspan=2)
     button_close_top.grid(row=8,column=0, pady=5, columnspan=2)
 
-#todo - sorft employee file, show the user the next avaiable id number
+#todo - sort employee file, show the user the next avaiable id number
 
 
     while True: #program will be stuck in this loop until all variables are valid
+
         button_submit.wait_variable(var_num_add)
 
         # emp_id input request
@@ -133,7 +132,7 @@ def add_manually(): #propt user input for a single employee details and sends it
                 continue
 
         # name input request
-        name = name_entry.get().strip() #remes spaces from the begining and the end
+        name = name_entry.get().strip() #removes spaces from the begining and the end
         stripped = re.sub('[^a-zA-Z]', '', name)  # removes all non alphabetic chars (replaces them with '')
         if "-" in name:
             messagebox.showwarning('Name input issue', 'No dashes in name please')
@@ -177,15 +176,12 @@ def add_manually(): #propt user input for a single employee details and sends it
     else:
             emp = Employee(emp_id, name, phone, str(dob), rank)
             emp.write_new_emp_to_file()
-    # messagebox.showinfo('Success!',f'--Adding employee {name} complete--' )
-    # Label(sub_action_frame,text=f'--Adding employee complete--').grid(row=9,column=0,columnspan=2)
+
     top.destroy()
 def add_from_file(): #add several new employees to the employee file,  reading the data from a file and sending employee data, one by one, to be written to file
     #todo validate file format (that all the required columns exist) before calling write_new_emp_to_file
 
-    # clear frame from previous action
-    for widget in sub_action_frame.winfo_children():
-        widget.grid_forget()
+
     global var_num_browse_add
     var_num_browse_add=IntVar()
     var_num_browse_add.set(0)
@@ -234,7 +230,6 @@ def add_from_file(): #add several new employees to the employee file,  reading t
     except Exception as err:
         messagebox.showwarning('Error', f"Something went wrong with opening new employees file for reading. \nError: {err}")
     finally:
-        # Label(sub_action_frame,text=f'--Adding from file complete--').grid(row=3,column=0, columnspan=2)
         top.destroy()
 
 def del_emp(emp_id,name): #delete a single employee from the employee file.
@@ -242,7 +237,7 @@ def del_emp(emp_id,name): #delete a single employee from the employee file.
     sure = messagebox.askyesno('Confirm deletion', f'Are you sure you want to delete {name}?')
     # perform the deletion action according to the user input above
     if sure == 0:  # if user doesn't approve deletion
-        Label(sub_action_frame, text=f'--Delete of {name} aborted--').grid(row=3, column=0, columnspan=2)
+        messagebox.showinfo('Abort', f'--Delete of {name} aborted--')
     else:  # if user approves deletion, in order to delete from file need to copy only the data we want to keep to a new file.
         with open('Employees.csv') as csvfile:  # reopen file and get all the data
             all_employees = csv.reader(csvfile)
@@ -260,9 +255,7 @@ def del_emp(emp_id,name): #delete a single employee from the employee file.
 
 
 def del_manually():
-    #clear frame from previous action
-    for widget in sub_action_frame.winfo_children():
-        widget.grid_forget()
+
     global var_num_del
     var_num_del = IntVar()
     var_num_del.set(0)
@@ -308,8 +301,7 @@ def del_from_file():
     #todo validate the file format (at list the first column) before calling del_emp
 
     # clear frame from previous action
-    for widget in sub_action_frame.winfo_children():
-        widget.grid_forget()
+
     global file_path
     global var_num_browse_del
     var_num_browse_del= IntVar()
@@ -364,15 +356,11 @@ def del_from_file():
             else:  # call the deletion function
                 del_emp(employee, name)
 
-    # when the function finished running print
-    # Label(sub_action_frame, text=f'--Deleting from file complete--').grid(row=3,column=0, columnspan=2)
     top.destroy()
 
 #reports functions
 def emp_att_report():
-    #clear frame from previous action
-    for widget in sub_action_frame.winfo_children():
-        widget.grid_forget()
+
     global var_num_report
     var_num_report = IntVar()
     var_num_report.set(0)
@@ -452,11 +440,8 @@ def emp_att_report():
     # id_entry.delete(0,END)
     top.destroy()
 def monthly_report():
-    #clear frame from previous action
-    for widget in sub_action_frame.winfo_children():
-        widget.grid_forget()
 
-    #go over attandance file print all the lines with the current date
+    #go over attandance file get all the lines with the current month
     today=datetime.today().date()
     try:
         with open('Attendance.csv') as csvfile:
@@ -480,9 +465,7 @@ def monthly_report():
         messagebox.showinfo('Success', f'--Report created successfully!--\n Saved as "Monthly report {today.month} {today.year}.csv"')
 
 def custom_att_report():
-    # clear frame from previous action
-    for widget in sub_action_frame.winfo_children():
-        widget.grid_forget()
+
     var_rank=StringVar()
     var_rank.set("Choose a rank    ")
     ranks=['Junior', 'Senior', 'Manager', 'All']
@@ -597,10 +580,6 @@ def custom_att_report():
 
     top.destroy()
 def late_report():
-    # clear frame from previous action
-    for widget in sub_action_frame.winfo_children():
-        widget.grid_forget()
-
 
 
     # open attendance report, go over all the entries, create a local list with all the entries which were recorded after 9:30
@@ -695,22 +674,6 @@ def check_id(emp_id):#received emp_id, validates it, returns emp details
         except Exception as err:
             raise (f"Something went wrong with opening employees file for reading. \nError: {err}")
 
-def validate_admin(emp_id):
-    if emp_id.strip()=='8888':
-        admin_menu()
-        return
-    try:
-        id_check, name, dob, rank = check_id(emp_id)
-    except Exception as err:
-        messagebox.showwarning('Permission issue', f'{err}')
-        return
-    else:
-        if rank=='Manager':
-            admin_menu()
-        else:
-            messagebox.showwarning('Permission issue', 'Only managers have permission to perform this action')
-    return
-
 def grab_date(cal_start, cal_end):
     global var_start_date
     global var_end_date
@@ -719,19 +682,32 @@ def grab_date(cal_start, cal_end):
     return
 
 # top level functions
-def admin_menu():
+
+def admin_menu(emp_id):
+    #check permission
+    while True:
+        if emp_id.strip() == '8888':
+            break
+        else:
+            try:
+                id_check, name, dob, rank = check_id(emp_id)
+            except Exception as err:
+                messagebox.showwarning('Permission issue', f'{err}')
+                return
+            else:
+                if rank!='Manager':
+                    messagebox.showwarning('Permission issue', f'{emp_id} is not a valid admin ID')
+                    return
+                else:
+                    break
 
     # clear frame from previous action
     for widget in main_frame.winfo_children():
         widget.grid_forget()
     main_frame.place_forget()
-    for widget in sub_action_frame.winfo_children():
-        widget.grid_forget()
-    sub_action_frame.grid_forget()
 
     label_welcome=Label(admin_menu_frame,text=f'---Administrator portal---')
     label_welcome.config(font=('Helvatical bold',12))
-
 
     #Admin menu frames
     button_back = Button(admin_menu_frame, text=f"<<back to main", command=main_menu)
@@ -751,7 +727,7 @@ def admin_menu():
     button_late_report = Button(frame_admin_reports, text=f'Late employees report', width=30, command=late_report)
     button_custom_report = Button(frame_admin_reports, text=f'Custom attendance report', width=30, command=custom_att_report)
 
-    admin_menu_frame.place(x=350, y=0, anchor=N)
+    admin_menu_frame.place(x=350, y=30, anchor=N)
     label_welcome.grid(row=0, column=0, columnspan=2)
 
     #add/delet frame
@@ -767,16 +743,16 @@ def admin_menu():
     button_attendance_this_month.grid(pady=5, row=1, column=0, sticky=W)
     button_late_report.grid(pady=5, row=2, column=0, sticky=W)
     button_custom_report.grid(pady=5, row=3, column=0, sticky=W)
-
-    sub_action_frame.grid(row=2,column=0,columnspan=2)
-    # button_clear.grid(row=3, column=0, sticky=W)
     button_back.grid(row=4,column=0, sticky= W)
 
+
 def main_menu():
+
     # clear frame from previous action
     for widget in admin_menu_frame.winfo_children():
         widget.grid_forget()
     admin_menu_frame.place_forget()
+    button_start.forget()
 
     global var_num_login
     var_num_login=IntVar()
@@ -785,21 +761,22 @@ def main_menu():
     # Define main screen labels and buttons
     label_welcome = Label(main_frame, text=f'Welcome to employee time clock')
     label_welcome.config(font=('Helvatical bold', 12))
-    button_admin = Button(main_frame, text=f'Admin menu', width=10, command=lambda : validate_admin(id_entry.get()))
-    input_message_label = Label(main_frame, text=f"Eenter your employee ID to log in \n click 'admin menu' for more options")
+    input_message_label = Label(main_frame, text=f"Eenter your employee ID to log in \n Enter admin ID and click 'admin menu' for more options")
     id_entry = Entry(main_frame, width=20, borderwidth=5)
-    button_log_in = Button(main_frame, text=f'Log in', command=lambda : submit_button('login'))
+    button_log_in = Button(main_frame, text=f'Log in', width=10, command=lambda : submit_button('login'))
+    button_admin = Button(main_frame, text=f'Admin menu', width=10, command=lambda : admin_menu(id_entry.get()))
     label_action_result = Label(main_frame, text=f"")
     bday_image = ImageTk.PhotoImage(Image.open('../bday.png'))
 
     # place main screen labels on root
-    main_frame.place(x=350, y=0, anchor=N)
-    label_welcome.grid( row=0, column=0, columnspan=3)
-    input_message_label.grid(row=2, column=0,columnspan=3, pady=5)
-    id_entry.grid(row=3, column=0, pady=5, padx=2, sticky=W)
-    button_log_in.grid(row=3, column=1, padx=2, sticky=W)
-    button_admin.grid(row=3,column=2, padx=2)
-    label_action_result.grid(row=4, column=0, columnspan=3)
+    main_frame.place(x=350, y=30, anchor=N)
+    label_welcome.grid( row=0, column=0, columnspan=2, padx=100)
+    input_message_label.grid(row=2, column=0,columnspan=2, pady=5)
+    id_entry.grid(row=3, column=0, pady=5, padx=2, columnspan=2)
+    button_log_in.grid(row=4, column=0, padx=2, sticky=E)
+    button_admin.grid(row=4,column=1, padx=2, sticky=W)
+    label_action_result.grid(row=5, column=0, columnspan=2)
+
 
     while True:
         button_log_in.wait_variable(var_num_login)
@@ -809,7 +786,8 @@ def main_menu():
             id_check, name, dob, rank = check_id(emp_id)
         except Exception as err: #error in the input validity
             messagebox.showwarning('ID input issue', f'{err}')
-            continue #wait for the user to correct their input
+            return
+            # continue #wait for the user to correct their input
         else: #we didn't get exception from employee file
             if id_check == 1:#means the employee exists and we got all their details
                 #check if it's their birthday
@@ -819,7 +797,7 @@ def main_menu():
                     messagebox.showinfo('HAPPY BIRTHDAY', f"Congratulations {name}, it's your birthday!!!")
                 # open attendance file to check if employee already checked in today.
                 response=1
-                try:
+                try: #todo - improve search, i don't need to go over the entire list of attendance logs to see if the user logged in today
                     with open('Attendance.csv') as csvfile:  # check if the file exists and if an entry for today already exists
                         attendance = csv.reader(csvfile)
                         for line in attendance:
@@ -832,34 +810,49 @@ def main_menu():
                         add_entry.writerow(['Date', 'Time', 'Employee ID', 'Employee name', 'Rank'])
                 except Exception as err: #if there is some kind of error display it, and update response so we don't write to file
                     label_action_result.config(text=f"Something went wrong with opening attendance file for writing. \nError: {err}")
-                    response=0
-                    break #no need to keep waiting for correct input because there is somekind of error with the file
+                    return
                 finally:  # update the log according to 'response'
                     if response==0:# if they don't want to check in again
                         label_action_result.config(text=f'--{name} your current entry was not registered--')
+                        return
                     else: #check the employee in
                         if mark_att(emp_id, name, rank) == True:
                             label_action_result.config(text=f'--{name}, your log in is registered-- \n --Date: {datetime.now().date().__str__()}, Time: {datetime.now().time().__str__()[:5]}--')
+                            return
             else:
                 label_action_result.config(text=f'--user does not appear in user list--')
+                return
 
-root = Tk()
-root.title('Employee Management System')
-root.geometry('700x500')
-var_num = IntVar()
-var_num.set(0)
+def terminate(root):
+    root.destroy()
+    exit()
 
-global file_path
-# mark_att_all()
+if __name__ == "__main__":
 
-# Define label common to all screens
-main_frame=LabelFrame(root, width=600, height=600)
-admin_menu_frame=LabelFrame(root,padx=20, pady=10)
-sub_action_frame = LabelFrame(admin_menu_frame, pady=10, padx=20)
+    root = Tk()
+    root.title('Employee Management System')
+    root.geometry('700x400')
+    var_num = IntVar()
+    var_num.set(0)
 
-main_menu()
+    global file_path
+    # mark_att_all()
 
-root.mainloop()
+    # Define label common to all screens
+    main_frame=LabelFrame(root,padx=20, pady=10)
+    admin_menu_frame=LabelFrame(root,padx=20, pady=10)
+    button_exit = Button(root, text='Exit', command=lambda : terminate(root))
+    button_start = Button(root,text='Start here', command=main_menu)
+
+    button_start.pack(pady=20, ipady=10, ipadx=20, side=tk.TOP)
+    button_exit.pack(pady=20, ipady=10, ipadx=20, side=tk.BOTTOM)
+    button_exit.configure(bg='#CDCDCD')
+    root.configure(bg='#E3E4DB')
+
+    # main_menu()
+
+    root.mainloop()
+
 
 
 
