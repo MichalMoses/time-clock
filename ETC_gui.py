@@ -116,57 +116,55 @@ def add_manually_screen(): #propt user input for a single employee details and s
 #todo - sort employee file, show the user the next available id number
 
 def add_manually_func():
-    global id_entry_add, name_entry, phone_entry, birth_entry, rank_entry, var_rank, ranks, top
 
-    while True: #program will be stuck in this loop until all variables are valid
 
-        # emp_id input request
-        emp_id=id_entry_add.get().strip()
-        try:
-            id_check, name, dob, rank =check_id(emp_id)
-        except Exception as err:
+    # emp_id input request
+    emp_id=id_entry_add.get().strip()
+    try:
+        id_check, name, dob, rank =check_id(emp_id)
+    except Exception as err:
             messagebox.showwarning('ID input issue', f'{err}')
             return
-        else:
-            if id_check==1:
-                messagebox.showwarning('ID input issue',f'ID already allocated to {name}, choose a different ID')
-                return
-
-        # name input request
-        name = name_entry.get().strip() #removes spaces from the beginning and the end
-        stripped = re.sub('[^a-zA-Z]', '', name)  # removes all non-alphabetic chars (replaces them with '')
-        if "-" in name:
-            messagebox.showwarning('Name input issue', 'No dashes in name please')
-            return
-        elif stripped != name:
-            messagebox.showwarning('Name input issue', 'Only english alphabet please')
+    else:
+        if id_check==1:
+            messagebox.showwarning('ID input issue',f'ID already allocated to {name}, choose a different ID')
             return
 
-        # phone number input request
-        phone=phone_entry.get().strip()
-        if len(phone)!=11 or phone[3]!="-" or not (phone[:3]+phone[4:]).isnumeric():
-            messagebox.showwarning('Phone number input issue', 'Please follow the phone number format: 05X-XXXXXXX')
-            return
+    # name input request
+    name = name_entry.get().strip() #removes spaces from the beginning and the end
+    stripped = re.sub('[^a-zA-Z]', '', name)  # removes all non-alphabetic chars (replaces them with '')
+    if "-" in name:
+        messagebox.showwarning('Name input issue', 'No dashes in name please')
+        return
+    elif stripped != name:
+        messagebox.showwarning('Name input issue', 'Only english alphabet please')
+        return
 
-        # dob input request
-        birth_date=birth_entry.get().strip()
-        try:
-            dob=date.fromisoformat(birth_date)
-            type(dob)
-        except Exception:
-            messagebox.showwarning('Date input issue', f'Date not according to format. Please type again.')
-            return
-        else:
-            if dob>datetime.today().date():
+    # phone number input request
+    phone=phone_entry.get().strip()
+    if len(phone)!=11 or phone[3]!="-" or not (phone[:3]+phone[4:]).isnumeric():
+        messagebox.showwarning('Phone number input issue', 'Please follow the phone number format: 05X-XXXXXXX')
+        return
+
+    # dob input request
+    birth_date=birth_entry.get().strip()
+    try:
+        dob=date.fromisoformat(birth_date)
+        type(dob)
+    except Exception:
+        messagebox.showwarning('Date input issue', f'Date not according to format. Please type again.')
+        return
+    else:
+        if dob>datetime.today().date():
                 messagebox.showwarning('Date input issue', f'Date of Birth cannot be in the future')
                 return
 
-        #rank input request
-        rank = var_rank.get()
-        if rank not in ranks:
-            messagebox.showwarning('Rank input issue', 'Invalid rank input. Please choose a rank from list')
-            return
-        break
+    #rank input request
+    rank = var_rank.get()
+    if rank not in ranks:
+        messagebox.showwarning('Rank input issue', 'Invalid rank input. Please choose a rank from list')
+        return
+
 
 # todo complete the part of adding the subs for the manager - generate a list of employees to choose from
 
