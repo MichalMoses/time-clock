@@ -754,7 +754,7 @@ def main_menu():
     admin_menu_frame.place_forget()
     button_start.forget()
 
-    global var_num_login
+    global var_num_login, id_entry_main
     var_num_login=IntVar()
     var_num_login.set(0)
 
@@ -762,66 +762,66 @@ def main_menu():
     label_welcome = Label(main_frame, text=f'Welcome to employee time clock')
     label_welcome.config(font=('Helvatical bold', 12))
     input_message_label = Label(main_frame, text=f"Eenter your employee ID to log in \n Enter admin ID and click 'admin menu' for more options")
-    id_entry = Entry(main_frame, width=20, borderwidth=5)
-    button_log_in = Button(main_frame, text=f'Log in', width=10, command=lambda : submit_button('login'))
-    button_admin = Button(main_frame, text=f'Admin menu', width=10, command=lambda : admin_menu(id_entry.get()))
+    id_entry_main = Entry(main_frame, width=20, borderwidth=5)
+    # button_log_in = Button(main_frame, text=f'Log in', width=10, command=lambda : submit_button('login'))
+    # button_log_in = Button(main_frame, text=f'Log in', width=10, command=lambda : login(id_entry.get()))
+    button_log_in = Button(main_frame, text=f'Log in', width=10, command=login)
+    button_admin = Button(main_frame, text=f'Admin menu', width=10, command=lambda : admin_menu(id_entry_main.get()))
     label_action_result = Label(main_frame, text=f"")
-    bday_image = ImageTk.PhotoImage(Image.open('../bday.png'))
 
     # place main screen labels on root
     main_frame.place(x=350, y=30, anchor=N)
     label_welcome.grid( row=0, column=0, columnspan=2, padx=100)
     input_message_label.grid(row=2, column=0,columnspan=2, pady=5)
-    id_entry.grid(row=3, column=0, pady=5, padx=2, columnspan=2)
+    id_entry_main.grid(row=3, column=0, pady=5, padx=2, columnspan=2)
     button_log_in.grid(row=4, column=0, padx=2, sticky=E)
     button_admin.grid(row=4,column=1, padx=2, sticky=W)
     label_action_result.grid(row=5, column=0, columnspan=2)
 
-
-    while True:
-        button_log_in.wait_variable(var_num_login)
-        emp_id = id_entry.get().strip()
-        id_entry.delete(0, END)
-        try: #find the employee in employee file and get their details
-            id_check, name, dob, rank = check_id(emp_id)
-        except Exception as err: #error in the input validity
-            messagebox.showwarning('ID input issue', f'{err}')
-            return
-            # continue #wait for the user to correct their input
-        else: #we didn't get exception from employee file
-            if id_check == 1:#means the employee exists and we got all their details
-                #check if it's their birthday
-                if datetime.fromisoformat(dob).month==datetime.today().date().month and datetime.fromisoformat(dob).day==datetime.today().date().day:
-                    bday_image_label=Label(main_frame, image=bday_image, text=f"Congratulations {name}, it's your birthday!!!")
-                    bday_image_label.grid(row=6,column=0,columnspan=2)
-                    messagebox.showinfo('HAPPY BIRTHDAY', f"Congratulations {name}, it's your birthday!!!")
-                # open attendance file to check if employee already checked in today.
-                response=1
-                try: #todo - improve search, i don't need to go over the entire list of attendance logs to see if the user logged in today
-                    with open('Attendance.csv') as csvfile:  # check if the file exists and if an entry for today already exists
-                        attendance = csv.reader(csvfile)
-                        for line in attendance:
-                            if str(datetime.now().date()) == line[0] and emp_id == line[2]:  # if the employee already checked in we ask them if they want to check in again
-                                response=messagebox.askyesno('Continue?', f'Hi {name}, you already checked in today. Do you wish to check in again?')
-                                break
-                except FileNotFoundError:  # if the file doesn't exist create it
-                    with open('Attendance.csv', 'w', newline='') as csvfile:
-                        add_entry = csv.writer(csvfile)
-                        add_entry.writerow(['Date', 'Time', 'Employee ID', 'Employee name', 'Rank'])
-                except Exception as err: #if there is some kind of error display it, and update response so we don't write to file
-                    label_action_result.config(text=f"Something went wrong with opening attendance file for writing. \nError: {err}")
-                    return
-                finally:  # update the log according to 'response'
-                    if response==0:# if they don't want to check in again
-                        label_action_result.config(text=f'--{name} your current entry was not registered--')
-                        return
-                    else: #check the employee in
-                        if mark_att(emp_id, name, rank) == True:
-                            label_action_result.config(text=f'--{name}, your log in is registered-- \n --Date: {datetime.now().date().__str__()}, Time: {datetime.now().time().__str__()[:5]}--')
-                            return
-            else:
-                label_action_result.config(text=f'--user does not appear in user list--')
+def login():
+    global id_entry_main
+    emp_id=id_entry_main.get()
+    id_entry_main.delete(0, END)
+    bday_image = ImageTk.PhotoImage(Image.open('../bday.png'))
+    try: #find the employee in employee file and get their details
+        id_check, name, dob, rank = check_id(emp_id)
+    except Exception as err: #error in the input validity
+        messagebox.showwarning('ID input issue', f'{err}')
+        return
+        # continue #wait for the user to correct their input
+    else: #we didn't get exception from employee file
+        if id_check == 1:#means the employee exists and we got all their details
+            #check if it's their birthday
+            if datetime.fromisoformat(dob).month==datetime.today().date().month and datetime.fromisoformat(dob).day==datetime.today().date().day:
+                bday_image_label=Label(main_frame, image=bday_image, text=f"Congratulations {name}, it's your birthday!!!")
+                bday_image_label.grid(row=6,column=0,columnspan=2)
+                messagebox.showinfo('HAPPY BIRTHDAY', f"Congratulations {name}, it's your birthday!!!")
+            response=1
+            try: #todo - improve search, i don't need to go over the entire list of attendance logs to see if the user logged in today
+                with open('Attendance.csv') as csvfile:  # check if the file exists and if an entry for today already exists
+                    attendance = csv.reader(csvfile)
+                    for line in attendance:
+                        if str(datetime.now().date()) == line[0] and emp_id == line[2]:  # if the employee already checked in we ask them if they want to check in again
+                            response=messagebox.askyesno('Continue?', f'Hi {name}, you already checked in today. Do you wish to check in again?')
+                            break
+            except FileNotFoundError:  # if the file doesn't exist create it
+                with open('Attendance.csv', 'w', newline='') as csvfile:
+                    add_entry = csv.writer(csvfile)
+                    add_entry.writerow(['Date', 'Time', 'Employee ID', 'Employee name', 'Rank'])
+            except Exception as err: #if there is some kind of error display it, and update response so we don't write to file
+                messagebox.showwarning('Error', f'Something went wrong with opening attendance file for writing. \nError: {err}')
                 return
+            finally:  # update the log according to 'response'
+                if response==0:# if they don't want to check in again
+                    messagebox.showwarning('Error', f'--{name} your current entry was not registered--')
+                    return
+                else: #check the employee in
+                    if mark_att(emp_id, name, rank) == True:
+                        messagebox.showinfo('Error',f'--{name}, your log in is registered-- \n --Date: {datetime.now().date().__str__()}, Time: {datetime.now().time().__str__()[:5]}--')
+                        return
+        else:
+            messagebox.showwarning('Error',f'--user does not appear in user list--' )
+            return
 
 def terminate(root):
     root.destroy()
@@ -836,7 +836,6 @@ if __name__ == "__main__":
     var_num.set(0)
 
     global file_path
-    # mark_att_all()
 
     # Define label common to all screens
     main_frame=LabelFrame(root,padx=20, pady=10)
