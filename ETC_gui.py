@@ -64,17 +64,19 @@ def mark_att(emp_id,name,rank): #function will return True if writing went ok, w
         add_entry.writerow([datetime.now().date(), datetime.now().time(),emp_id, name, rank])
         return True
 #add\delete functions
-def add_manually(): #propt user input for a single employee details and sends it to be written to file
+def add_manually_screen(): #propt user input for a single employee details and sends it to be written to file
     #todo - every time we add an employee sort the file by id
-    global var_num_add
-    var_num_add=IntVar()
-    var_num_add.set(0)
-    var_num.set(0)
-    var_rank=StringVar()
+    # global var_num_add
+    global ranks, var_rank
+    # var_num_add=IntVar()
+    # var_num_add.set(0)
+    # var_num.set(0)
     ranks=['Junior', 'Senior', 'Manager']
-
+    var_rank=StringVar()
     var_rank.set('Choose employees rank')
 
+    #built top window
+    global top
     top=Toplevel()
     top.geometry('500x300')
     top.wm_transient(root)
@@ -82,10 +84,12 @@ def add_manually(): #propt user input for a single employee details and sends it
     y = root.winfo_y()
     top.geometry("+%d+%d" % (x + 100, y + 50))
 
-    # prepare frame for current action
+    global id_entry_add, name_entry, phone_entry, birth_entry, rank_entry
+
+    # define window widgets
     action_label = Label(top, text=f'--Add new employee to file manually-- \nPlease insert employee details')
     empid_label=Label(top,text=f"Employee ID 4 digits): ")
-    id_entry =Entry(top, width=35, borderwidth=5)
+    id_entry_add =Entry(top, width=35, borderwidth=5)
     name_label=Label(top,text=f'Employee name')
     name_entry=Entry(top,width=35,borderwidth=5)
     phone_label=Label(top,text=f'Phone number')
@@ -93,14 +97,15 @@ def add_manually(): #propt user input for a single employee details and sends it
     birth_label=Label(top,text=f'Date of birth, YYYY-MM-DD:')
     birth_entry=Entry(top,width=35,borderwidth=5)
     rank_label=Label(top,text=f"Employees's rank:")
-    rank_entry=OptionMenu(top, var_rank,*ranks )
-    button_submit=Button(top, text=f"Submit", command=lambda :submit_button('add'))
+    rank_entry=OptionMenu(top, var_rank, *ranks )
+    # button_submit=Button(top, text=f"Submit", command=lambda :submit_button('add'))
+    button_submit=Button(top, text=f"Submit", command=add_manually_func)
     button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
-
+    #place window widgets
     action_label.grid(row=0, column=0, pady=5, columnspan=2)
     empid_label.grid(row=1,column=0, pady=5, sticky=W)
-    id_entry.grid(row=1,column=1, pady=5, sticky=W)
+    id_entry_add.grid(row=1,column=1, pady=5, sticky=W)
     name_label.grid(row=2,column=0, pady=5, sticky=W)
     name_entry.grid(row=2,column=1, pady=5, sticky=W)
     phone_label.grid(row=3,column=0, pady=5, sticky=W)
@@ -112,40 +117,40 @@ def add_manually(): #propt user input for a single employee details and sends it
     button_submit.grid(row=7, column=1, pady=5, sticky=W)
     button_close_top.grid(row=8,column=0, pady=5, columnspan=2)
 
-#todo - sort employee file, show the user the next avaiable id number
+#todo - sort employee file, show the user the next available id number
 
+def add_manually_func():
+    global id_entry_add, name_entry, phone_entry, birth_entry, rank_entry, var_rank, ranks, top
 
     while True: #program will be stuck in this loop until all variables are valid
 
-        button_submit.wait_variable(var_num_add)
-
         # emp_id input request
-        emp_id=id_entry.get().strip()
+        emp_id=id_entry_add.get().strip()
         try:
             id_check, name, dob, rank =check_id(emp_id)
         except Exception as err:
             messagebox.showwarning('ID input issue', f'{err}')
-            continue
+            return
         else:
             if id_check==1:
                 messagebox.showwarning('ID input issue',f'ID already allocated to {name}, choose a different ID')
-                continue
+                return
 
         # name input request
-        name = name_entry.get().strip() #removes spaces from the begining and the end
-        stripped = re.sub('[^a-zA-Z]', '', name)  # removes all non alphabetic chars (replaces them with '')
+        name = name_entry.get().strip() #removes spaces from the beginning and the end
+        stripped = re.sub('[^a-zA-Z]', '', name)  # removes all non-alphabetic chars (replaces them with '')
         if "-" in name:
             messagebox.showwarning('Name input issue', 'No dashes in name please')
-            continue
+            return
         elif stripped != name:
             messagebox.showwarning('Name input issue', 'Only english alphabet please')
-            continue
+            return
 
         # phone number input request
         phone=phone_entry.get().strip()
         if len(phone)!=11 or phone[3]!="-" or not (phone[:3]+phone[4:]).isnumeric():
             messagebox.showwarning('Phone number input issue', 'Please follow the phone number format: 05X-XXXXXXX')
-            continue
+            return
 
         # dob input request
         birth_date=birth_entry.get().strip()
@@ -154,17 +159,17 @@ def add_manually(): #propt user input for a single employee details and sends it
             type(dob)
         except Exception:
             messagebox.showwarning('Date input issue', f'Date not according to format. Please type again.')
-            continue
+            return
         else:
             if dob>datetime.today().date():
                 messagebox.showwarning('Date input issue', f'Date of Birth cannot be in the future')
-                continue
+                return
 
         #rank input request
         rank = var_rank.get()
         if rank not in ranks:
             messagebox.showwarning('Rank input issue', 'Invalid rank input. Please choose a rank from list')
-            continue
+            return
         break
 
 # todo complete the part of adding the subs for the manager - generate a list of employees to choose from
@@ -178,10 +183,10 @@ def add_manually(): #propt user input for a single employee details and sends it
             emp.write_new_emp_to_file()
 
     top.destroy()
-def add_from_file(): #add several new employees to the employee file,  reading the data from a file and sending employee data, one by one, to be written to file
+def add_from_file_screen(): #add several new employees to the employee file,  reading the data from a file and sending employee data, one by one, to be written to file
     #todo validate file format (that all the required columns exist) before calling write_new_emp_to_file
 
-
+    global top
     global var_num_browse_add
     var_num_browse_add=IntVar()
     var_num_browse_add.set(0)
@@ -197,7 +202,8 @@ def add_from_file(): #add several new employees to the employee file,  reading t
     # define widgets
     action_label = Label(top, text=f'--Add new employees by file input--')
     open_label=Label(top,text=f'Choose a file containing the \nemployees you wish to add')
-    open_file_button=Button(top,text=f'Open source file', command=lambda: choose_file('add'))
+    # open_file_button=Button(top,text=f'Open source file', command=lambda: choose_file('add'))
+    open_file_button=Button(top,text=f'Open source file', command=add_from_file_func)
     button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
     # place widgets
@@ -206,9 +212,10 @@ def add_from_file(): #add several new employees to the employee file,  reading t
     open_file_button.grid(row=1, column=1, pady=5)
     button_close_top.grid(row=2, column=0, pady=5, columnspan=2)
 
-
-    open_file_button.wait_variable(var_num_browse_add)
-
+def add_from_file_func():
+    # open_file_button.wait_variable(var_num_browse_add)
+    global top
+    file_path = choose_file_new()
     #open the source file with the new employees, read it, for each line validate id and send wrtitten to file
     try:
         with open(file_path) as csvfile:
@@ -227,8 +234,10 @@ def add_from_file(): #add several new employees to the employee file,  reading t
                     continue
     except FileNotFoundError:
         messagebox.showwarning('Error', f'--File not found--')
+        return
     except Exception as err:
         messagebox.showwarning('Error', f"Something went wrong with opening new employees file for reading. \nError: {err}")
+        return
     finally:
         top.destroy()
 
@@ -254,12 +263,13 @@ def del_emp(emp_id,name): #delete a single employee from the employee file.
         messagebox.showinfo('Delete employee', f'-- {name} was successfully deleted from file!--') # print a message to user with data of the action
 
 
-def del_manually():
+def del_manually_screen():
 
     global var_num_del
     var_num_del = IntVar()
     var_num_del.set(0)
 
+    global top, id_entry_del
     top = Toplevel()
     top.geometry('500x300')
     top.wm_transient(root)
@@ -270,42 +280,48 @@ def del_manually():
     #define widgets
     title_label=Label(top,text=f'--Delete Employee from file--')
     id_label=Label(top,text=f'Enter the ID of the employee \nyou wish to remove from file:')
-    id_entry=Entry(top,width=35,borderwidth=5)
-    button_submit = Button(top, text=f"Submit", command=lambda : submit_button('del'))
+    id_entry_del=Entry(top,width=35,borderwidth=5)
+    # button_submit = Button(top, text=f"Submit", command=lambda : submit_button('del'))
+    button_submit = Button(top, text=f"Submit", command=del_manually_func)
     button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
     #place widgets
     title_label.grid(row=0,column=0, pady=5,columnspan=2)
     id_label.grid(row=1, column=0, pady=5)
-    id_entry.grid(row=1, column=1, pady=5)
+    id_entry_del.grid(row=1, column=1, pady=5)
     button_submit.grid(row=2,column=0, pady=5,columnspan=2)
     button_close_top.grid(row=3,column=0, pady=5,columnspan=2)
+
+def del_manually_func():
+    global id_entry_del
     #validating the input by sending to 'check_id' function, only if it exists in file we can delete it
-    while True:
-        button_submit.wait_variable(var_num_del)
-        emp_id = id_entry.get().strip()
-        try:
-            id_check, name, dob, rank = check_id(emp_id)
-        except Exception as err:
-            messagebox.showwarning('ID input issue', f'{err}')
-            continue
-        else:
-            if id_check == 0:
-                messagebox.showwarning('ID input issue', f'ID does not exist in employee file')
-                return
-            else: #call the deletion function
-                del_emp(emp_id, name)
-                break #break while loop continue to label
-    top.destroy()
-def del_from_file():
+    # button_submit.wait_variable(var_num_del)
+    emp_id = id_entry_del.get().strip()
+    id_entry_del.delete(0,END)
+    try:
+        id_check, name, dob, rank = check_id(emp_id)
+    except Exception as err:
+        messagebox.showwarning('ID input issue', f'{err}')
+        return
+    else:
+        if id_check == 0:
+            messagebox.showwarning('ID input issue', f'ID does not exist in employee file')
+            return
+        else: #call the deletion function
+            del_emp(emp_id, name)
+            top.destroy()
+
+
+def del_from_file_screen():
     #todo validate the file format (at list the first column) before calling del_emp
 
     # clear frame from previous action
 
-    global file_path
-    global var_num_browse_del
-    var_num_browse_del= IntVar()
-    var_num_browse_del.set(0)
+    # global file_path
+    global top
+    # global var_num_browse_del
+    # var_num_browse_del= IntVar()
+    # var_num_browse_del.set(0)
 
     top = Toplevel()
     top.geometry('500x300')
@@ -317,7 +333,8 @@ def del_from_file():
     # define widgets
     action_label = Label(top, text=f'--Delete employees by file input--')
     open_label=Label(top,text=f'Choose a file containing the employees \nyou wish to delete')
-    open_file_button = Button(top, text=f'Browse', command=lambda: choose_file('del'))
+    # open_file_button = Button(top, text=f'Browse', command=lambda: choose_file('del'))
+    open_file_button = Button(top, text=f'Browse', command=del_from_file_func)
     button_close_top = Button(top, text='Back to Admin menu', command=top.destroy)
 
     #place widgets
@@ -326,8 +343,13 @@ def del_from_file():
     open_file_button.grid(row=1, column=1, pady=5)
     button_close_top.grid(row=2, column=1, pady=5)
 
-    #wait for the source file input
-    open_file_button.wait_variable(var_num_browse_del)
+def del_from_file_func():
+
+    global top
+    file_path = choose_file_new()
+
+    # #wait for the source file input
+    # open_file_button.wait_variable(var_num_browse_del)
 
     #open source file with the employees you want to delete and get all the ids into a list
     try:
@@ -335,11 +357,11 @@ def del_from_file():
             all_employees = csv.reader(csvfile)
             all_ids=[]
             next(all_employees, None)  # skip the header line
-            for line in all_employees: #for each employee in the file, send it to delete function
+            for line in all_employees: #for each employee in the file, add it to the list of IDs to be deleted
                 all_ids.append(line[0])
     except Exception as err: #error if something went wrong with reading the source file
         messagebox.showwarning('File reading error',f"Something went wrong with opening {file_path} file for reading. \nError: {err}")
-        open_file_button.config(state=DISABLED)
+        # open_file_button.config(state=DISABLED)
         return
 
     # take the list of ids, send each one to be validated and then to be deleted.
@@ -629,16 +651,22 @@ def submit_button(option):
     elif option=='report_custom':
         var_num_report_custom.set(not var_num_report_custom.get())
 
-def choose_file(option):
-    global file_path, var_num_browse_add, var_num_browse_del
+# def choose_file(option):
+#     global file_path, var_num_browse_add, var_num_browse_del
+#     current_dir = os.getcwd()
+#     root.filename=filedialog.askopenfilename(initialdir=current_dir, title='Select a file', filetypes=(('csv files','*.csv'),('all files','*.*')))
+#     file_path=root.filename
+#     if option=='add':
+#         var_num_browse_add.set(1)
+#     elif option == 'del':
+#         var_num_browse_del.set(1)
+#     return
+def choose_file_new():
     current_dir = os.getcwd()
     root.filename=filedialog.askopenfilename(initialdir=current_dir, title='Select a file', filetypes=(('csv files','*.csv'),('all files','*.*')))
-    file_path=root.filename
-    if option=='add':
-        var_num_browse_add.set(1)
-    elif option == 'del':
-        var_num_browse_del.set(1)
-    return
+    file_path = root.filename
+    return file_path
+
 def check_id(emp_id):#received emp_id, validates it, returns emp details
     if emp_id == '8888':
         raise Exception (f'{emp_id} is a reserved system number, please insert a different four digit number')
@@ -716,10 +744,10 @@ def admin_menu(emp_id):
     frame_admin_reports = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Generate attendance reports')
 
     # widgets in add\remove frame
-    button_add_manually = Button(frame_add_remove, text=f'Add employee manually', width=30, command=add_manually)
-    button_add_from_file = Button(frame_add_remove, text=f'Add employee from file', width=30, command=add_from_file)
-    button_delete_manually = Button(frame_add_remove, text=f'Delete employee manually', width=30, command=del_manually)
-    button_delete_from_file = Button(frame_add_remove, text=f'Delete Employee from file', width=30, command=del_from_file)
+    button_add_manually = Button(frame_add_remove, text=f'Add employee manually', width=30, command=add_manually_screen)
+    button_add_from_file = Button(frame_add_remove, text=f'Add employee from file', width=30, command=add_from_file_screen)
+    button_delete_manually = Button(frame_add_remove, text=f'Delete employee manually', width=30, command=del_manually_screen)
+    button_delete_from_file = Button(frame_add_remove, text=f'Delete Employee from file', width=30, command=del_from_file_screen)
 
     # widgets in reports frame
     button_attendance_report_employee = Button(frame_admin_reports, text=f'Attendance report for a single employee', width=30, command=emp_att_report)
