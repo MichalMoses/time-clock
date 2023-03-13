@@ -697,7 +697,7 @@ def admin_menu(emp_id):
     label_welcome.config(font=('Helvatical bold',12))
 
     #Admin menu frames
-    button_back = Button(admin_menu_frame, text=f"<<back to main", command=main_menu)
+    button_back = Button(admin_menu_frame, text=f"<<back to main", command=back_to_main)
     frame_add_remove = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Actions in employees file')
     frame_admin_reports = LabelFrame(admin_menu_frame, pady=10, padx=20, text=f'Generate attendance reports')
 
@@ -731,16 +731,39 @@ def admin_menu(emp_id):
     button_custom_report.grid(pady=5, row=3, column=0, sticky=W)
     button_back.grid(row=4,column=0, sticky= W)
 
-
-def main_menu():
-
+def back_to_main():
     # clear frame from previous action
     for widget in admin_menu_frame.winfo_children():
         widget.grid_forget()
     admin_menu_frame.place_forget()
-    button_start.forget()
+    id_entry_main.delete(0,END)
 
+    #place main screen labels back on root
+    main_frame.place(x=350, y=30, anchor=N)
+    label_welcome.grid( row=0, column=0, columnspan=2, padx=100)
+    input_message_label.grid(row=2, column=0,columnspan=2, pady=5)
+    id_entry_main.grid(row=3, column=0, pady=5, padx=2, columnspan=2)
+    button_log_in.grid(row=4, column=0, padx=2, sticky=E)
+    button_admin.grid(row=4,column=1, padx=2, sticky=W)
+    label_action_result.grid(row=5, column=0, columnspan=2)
+
+def main_menu():
+    global root
+    global main_frame, admin_menu_frame, button_exit
+    global label_welcome, input_message_label, button_log_in, button_admin, label_action_result
     global id_entry_main
+
+    root = Tk()
+    root.title('Employee Management System')
+    root.geometry('700x400')
+
+    # Define label common to all screens
+    main_frame = LabelFrame(root, padx=20, pady=10)
+    admin_menu_frame = LabelFrame(root, padx=20, pady=10)
+    button_exit = Button(root, text='Exit', command=lambda: terminate(root))
+    button_exit.pack(pady=20, ipady=10, ipadx=20, side=tk.BOTTOM)
+    button_exit.configure(bg='#CDCDCD')
+    root.configure(bg='#E3E4DB')
 
     # Define main screen labels and buttons
     label_welcome = Label(main_frame, text=f'Welcome to employee time clock')
@@ -759,6 +782,8 @@ def main_menu():
     button_log_in.grid(row=4, column=0, padx=2, sticky=E)
     button_admin.grid(row=4,column=1, padx=2, sticky=W)
     label_action_result.grid(row=5, column=0, columnspan=2)
+
+    root.mainloop()
 
 def login():
     global id_entry_main
@@ -810,27 +835,8 @@ def terminate(root):
     exit()
 
 if __name__ == "__main__":
+    main_menu()
 
-    root = Tk()
-    root.title('Employee Management System')
-    root.geometry('700x400')
-
-    global file_path
-
-    # Define label common to all screens
-    main_frame=LabelFrame(root,padx=20, pady=10)
-    admin_menu_frame=LabelFrame(root,padx=20, pady=10)
-    button_exit = Button(root, text='Exit', command=lambda : terminate(root))
-    button_start = Button(root,text='Start here', command=main_menu)
-
-    button_start.pack(pady=20, ipady=10, ipadx=20, side=tk.TOP)
-    button_exit.pack(pady=20, ipady=10, ipadx=20, side=tk.BOTTOM)
-    button_exit.configure(bg='#CDCDCD')
-    root.configure(bg='#E3E4DB')
-
-    # main_menu()
-
-    root.mainloop()
 
 
 
